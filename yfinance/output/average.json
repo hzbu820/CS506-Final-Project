@@ -1,0 +1,86 @@
+{
+  "analysis_date": "2025-03-05 16:08:25",
+  "period": {
+    "start": "2024-01-01",
+    "end": "2024-03-05"
+  },
+  "stocks": {
+    "AAPL": {
+      "avg_close": 184.84855332485466,
+      "max_high": 195.20800309667513,
+      "min_low": 172.97325852152966,
+      "volume_total": 2503844400,
+      "volume_avg": 58228939.53488372,
+      "price_volatility": 4.3254632187706505,
+      "data_points": 43,
+      "price_change": -10.254959106445312,
+      "price_change_pct": -5.557277326139162
+    },
+    "MSFT": {
+      "avg_close": 396.20375309434047,
+      "max_high": 416.86061863442,
+      "min_low": 363.0517388090319,
+      "volume_total": 1007971600,
+      "volume_avg": 23441200.0,
+      "price_volatility": 14.381052097153118,
+      "data_points": 43,
+      "price_change": 44.395660400390625,
+      "price_change_pct": 12.084378502095849
+    },
+    "GOOG": {
+      "avg_close": 143.84547424316406,
+      "max_high": 154.64435628217598,
+      "min_low": 132.38432937436133,
+      "volume_total": 976096100,
+      "volume_avg": 22699909.30232558,
+      "price_volatility": 4.7468633089863905,
+      "data_points": 43,
+      "price_change": -5.3408050537109375,
+      "price_change_pct": -3.8406387564412983
+    },
+    "AMZN": {
+      "avg_close": 162.8323243606922,
+      "max_high": 180.13999938964844,
+      "min_low": 144.0500030517578,
+      "volume_total": 2067743800,
+      "volume_avg": 48087065.11627907,
+      "price_volatility": 10.036874965611371,
+      "data_points": 43,
+      "price_change": 27.650009155273438,
+      "price_change_pct": 18.44194657907153
+    },
+    "META": {
+      "avg_close": 423.0687632006268,
+      "max_high": 503.0336586030815,
+      "min_low": 338.716128268748,
+      "volume_total": 841769300,
+      "volume_avg": 19576030.23255814,
+      "price_volatility": 53.667757328411966,
+      "data_points": 43,
+      "price_change": 151.84854125976562,
+      "price_change_pct": 44.01761315634662
+    },
+    "NVDA": {
+      "avg_close": 65.09707881129066,
+      "max_high": 87.67014062841129,
+      "min_low": 47.30658912189055,
+      "volume_total": 21878887000,
+      "volume_avg": 508811325.5813953,
+      "price_volatility": 10.239740290936446,
+      "data_points": 43,
+      "price_change": 37.05849075317383,
+      "price_change_pct": 76.95772754239299
+    },
+    "TSLA": {
+      "avg_close": 204.31116325910702,
+      "max_high": 251.25,
+      "min_low": 175.00999450683594,
+      "volume_total": 4580126400,
+      "volume_avg": 106514567.44186047,
+      "price_volatility": 18.895561797810835,
+      "data_points": 43,
+      "price_change": -60.279998779296875,
+      "price_change_pct": -24.26535674406603
+    }
+  }
+}

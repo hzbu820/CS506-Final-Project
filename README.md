@@ -93,8 +93,36 @@ The following models will be implemented and compared:
 - **Midterm & Final Presentation**: Recorded and uploaded to YouTube.
 - **README.md**: Comprehensive documentation including project setup, instructions, and results.
 
+<<<<<<< Updated upstream
 
 Reference:
 https://people.duke.edu/~rnau/411arim.htm
 https://documentation.sas.com/doc/en/capcdc/v_025/vfcdc/vfug/p141sb29rauf5pn1d2j7v5l9mfcs.htm
 https://www.math.pku.edu.cn/teachers/lidf/course/fts/ftsnotes/html/_ftsnotes/fts-arma.html#arma-concept
+=======
+## Installation
+
+1. Clone this repository:
+   ```
+   git clone https://github.com/yourusername/CS506-Final-Project.git
+   cd CS506-Final-Project
+   ```
+
+2. Create a virtual environment (recommended):
+   ```
+   python3 -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
+
+3. Install required packages:
+   ```
+   pip install -r yfinance/requirements.txt
+   ```
+
+4. Run the system check to verify your environment:
+   ```
+   python3 yfinance/check_system.py
+   ```
+
+## Usage
+>>>>>>> Stashed changes

@@ -1,0 +1,569 @@
+{
+  "analysis_date": "2025-03-05 16:15:27",
+  "period": {
+    "start": "2024-01-01",
+    "end": "2024-03-05"
+  },
+  "stocks": {
+    "AAPL": {
+      "1m": {
+        "summary": {
+          "avg_close": 240.08444420671287,
+          "max_high": 249.97999572753906,
+          "min_low": 229.22999572753906,
+          "volume_total": 253725233,
+          "volume_avg": 92939.64578754579,
+          "price_volatility": 4.190006866913323,
+          "price_change": -13.639999389648438,
+          "price_change_pct": -5.468906294603708
+        },
+        "error": null
+      },
+      "5m": {
+        "summary": {
+          "avg_close": 240.59055390797434,
+          "max_high": 260.0899963378906,
+          "min_low": 219.3800048828125,
+          "volume_total": 2199452150,
+          "volume_avg": 473611.5740740741,
+          "price_volatility": 9.11641899908599,
+          "price_change": -7.8600921630859375,
+          "price_change_pct": -3.226240221583358
+        },
+        "error": null
+      },
+      "15m": {
+        "summary": {
+          "avg_close": 240.5939599364919,
+          "max_high": 260.0899963378906,
+          "min_low": 219.3800048828125,
+          "volume_total": 2199452150,
+          "volume_avg": 1420834.7222222222,
+          "price_volatility": 9.12375272296487,
+          "price_change": -7.380096435546875,
+          "price_change_pct": -3.035201883140253
+        },
+        "error": null
+      },
+      "30m": {
+        "summary": {
+          "avg_close": 240.59642279178905,
+          "max_high": 260.0899963378906,
+          "min_low": 219.3800048828125,
+          "volume_total": 2199452150,
+          "volume_avg": 2841669.4444444445,
+          "price_volatility": 9.119559779142074,
+          "price_change": -7.7299957275390625,
+          "price_change_pct": -3.17453623307559
+        },
+        "error": null
+      },
+      "60m": {
+        "summary": {
+          "avg_close": 182.322258702142,
+          "max_high": 260.0899963378906,
+          "min_low": 124.16999816894531,
+          "volume_total": 38738132767,
+          "volume_avg": 7616620.677742823,
+          "price_volatility": 32.22081434941515,
+          "price_change": 64.63999938964844,
+          "price_change_pct": 37.77245225576487
+        },
+        "error": null
+      },
+      "1d": {
+        "summary": {
+          "avg_close": 24.258909443231097,
+          "max_high": 259.81433504408284,
+          "min_low": 0.03777334839105606,
+          "volume_total": 3505666578402,
+          "volume_avg": 314494175.868126,
+          "price_volatility": 51.22672937667078,
+          "price_change": 235.64127957075834,
+          "price_change_pct": 238682.27698332074
+        },
+        "error": null
+      }
+    },
+    "MSFT": {
+      "1m": {
+        "summary": {
+          "avg_close": 394.80201657473384,
+          "max_high": 405.739990234375,
+          "min_low": 381.0,
+          "volume_total": 131094164,
+          "volume_avg": 48019.840293040295,
+          "price_volatility": 5.019168694145562,
+          "price_change": -0.019989013671875,
+          "price_change_pct": -0.00498292757721769
+        },
+        "error": null
+      },
+      "5m": {
+        "summary": {
+          "avg_close": 423.84012085933506,
+          "max_high": 456.164794921875,
+          "min_low": 381.0,
+          "volume_total": 930920947,
+          "volume_avg": 200456.70693367787,
+          "price_volatility": 17.392556479014107,
+          "price_change": -38.260009765625,
+          "price_change_pct": -8.707528275588466
+        },
+        "error": null
+      },
+      "15m": {
+        "summary": {
+          "avg_close": 423.8468554001446,
+          "max_high": 456.164794921875,
+          "min_low": 381.0,
+          "volume_total": 930920947,
+          "volume_avg": 601370.1208010336,
+          "price_volatility": 17.397059170160258,
+          "price_change": -36.510009765625,
+          "price_change_pct": -8.342475217892042
+        },
+        "error": null
+      },
+      "30m": {
+        "summary": {
+          "avg_close": 423.84371711671815,
+          "max_high": 456.164794921875,
+          "min_low": 381.0,
+          "volume_total": 930920947,
+          "volume_avg": 1202740.2416020671,
+          "price_volatility": 17.425493480145363,
+          "price_change": -36.222503662109375,
+          "price_change_pct": -8.282221538553001
+        },
+        "error": null
+      },
+      "60m": {
+        "summary": {
+          "avg_close": 341.9220699950836,
+          "max_high": 468.3500061035156,
+          "min_low": 213.43099975585938,
+          "volume_total": 14245252481,
+          "volume_avg": 2800875.438655132,
+          "price_volatility": 72.81053578462264,
+          "price_change": 99.61700439453125,
+          "price_change_pct": 33.03904118005121
+        },
+        "error": null
+      },
+      "1d": {
+        "summary": {
+          "avg_close": 58.08081047382805,
+          "max_high": 465.6397765538939,
+          "min_low": 0.05437636745371823,
+          "volume_total": 552310365289,
+          "volume_avg": 56237691.20140515,
+          "price_volatility": 99.71682087965,
+          "price_change": 400.9602819904685,
+          "price_change_pct": 671546.2611906225
+        },
+        "error": null
+      }
+    },
+    "GOOG": {
+      "1m": {
+        "summary": {
+          "avg_close": 173.29651000752992,
+          "max_high": 180.75999450683594,
+          "min_low": 167.55999755859375,
+          "volume_total": 140206773,
+          "volume_avg": 51357.79230769231,
+          "price_volatility": 2.995460771556662,
+          "price_change": -4.7849884033203125,
+          "price_change_pct": -2.661654048546674
+        },
+        "error": null
+      },
+      "5m": {
+        "summary": {
+          "avg_close": 190.54605991649382,
+          "max_high": 208.6999969482422,
+          "min_low": 167.55999755859375,
+          "volume_total": 913603144,
+          "volume_avg": 196727.63652024118,
+          "price_volatility": 9.170320372712476,
+          "price_change": -1.5800018310546875,
+          "price_change_pct": -0.8948302460867434
+        },
+        "error": null
+      },
+      "15m": {
+        "summary": {
+          "avg_close": 190.54397361223087,
+          "max_high": 208.6999969482422,
+          "min_low": 167.55999755859375,
+          "volume_total": 913603144,
+          "volume_avg": 590182.9095607235,
+          "price_volatility": 9.174827125492794,
+          "price_change": -0.92999267578125,
+          "price_change_pct": -0.5286452282065901
+        },
+        "error": null
+      },
+      "30m": {
+        "summary": {
+          "avg_close": 190.54149803141908,
+          "max_high": 208.6999969482422,
+          "min_low": 167.55999755859375,
+          "volume_total": 913603144,
+          "volume_avg": 1180365.819121447,
+          "price_volatility": 9.199895634709753,
+          "price_change": -1.04998779296875,
+          "price_change_pct": -0.5964484395668632
+        },
+        "error": null
+      },
+      "60m": {
+        "summary": {
+          "avg_close": 136.38154941368327,
+          "max_high": 208.6999969482422,
+          "min_low": 83.44999694824219,
+          "volume_total": 12376278207,
+          "volume_avg": 2433401.1417616988,
+          "price_volatility": 31.15174358782148,
+          "price_change": 37.07499694824219,
+          "price_change_pct": 26.882496212271246
+        },
+        "error": null
+      },
+      "1d": {
+        "summary": {
+          "avg_close": 48.893567846000806,
+          "max_high": 208.6999969482422,
+          "min_low": 2.3814852608470902,
+          "volume_total": 583862607941,
+          "volume_avg": 112954654.27374734,
+          "price_volatility": 47.97633496231888,
+          "price_change": 172.4998197555542,
+          "price_change_pct": 6927.186882096733
+        },
+        "error": null
+      }
+    },
+    "AMZN": {
+      "1m": {
+        "summary": {
+          "avg_close": 209.2384272704631,
+          "max_high": 219.97000122070312,
+          "min_low": 197.4320068359375,
+          "volume_total": 273796960,
+          "volume_avg": 100291.92673992674,
+          "price_volatility": 4.3404548282900715,
+          "price_change": -2.80999755859375,
+          "price_change_pct": -1.3300504102654735
+        },
+        "error": null
+      },
+      "5m": {
+        "summary": {
+          "avg_close": 225.5652179110163,
+          "max_high": 242.52000427246094,
+          "min_low": 197.4320068359375,
+          "volume_total": 1708536881,
+          "volume_avg": 367901.99849267874,
+          "price_volatility": 8.567439440308979,
+          "price_change": -9.349990844726562,
+          "price_change_pct": -4.29272804257357
+        },
+        "error": null
+      },
+      "15m": {
+        "summary": {
+          "avg_close": 225.56842595970292,
+          "max_high": 242.52000427246094,
+          "min_low": 197.4320068359375,
+          "volume_total": 1708536881,
+          "volume_avg": 1103705.995478036,
+          "price_volatility": 8.574603689969884,
+          "price_change": -9.540191650390625,
+          "price_change_pct": -4.376230719960109
+        },
+        "error": null
+      },
+      "30m": {
+        "summary": {
+          "avg_close": 225.57618823778412,
+          "max_high": 242.52000427246094,
+          "min_low": 197.4320068359375,
+          "volume_total": 1708536881,
+          "volume_avg": 2207411.990956072,
+          "price_volatility": 8.602525807121754,
+          "price_change": -9.814987182617188,
+          "price_change_pct": -4.4966154882917495
+        },
+        "error": null
+      },
+      "60m": {
+        "summary": {
+          "avg_close": 147.691808458299,
+          "max_high": 242.52000427246094,
+          "min_low": 81.43000030517578,
+          "volume_total": 31135159061,
+          "volume_avg": 6121737.919976406,
+          "price_volatility": 40.34959711321649,
+          "price_change": 50.1455078125,
+          "price_change_pct": 31.674614871340097
+        },
+        "error": null
+      },
+      "1d": {
+        "summary": {
+          "avg_close": 40.87842507086817,
+          "max_high": 242.52000427246094,
+          "min_low": 0.06562499701976776,
+          "volume_total": 950992797584,
+          "volume_avg": 135953223.38584703,
+          "price_volatility": 58.37247450335882,
+          "price_change": 208.2620836123824,
+          "price_change_pct": 212692.4721262358
+        },
+        "error": null
+      }
+    },
+    "META": {
+      "1m": {
+        "summary": {
+          "avg_close": 658.4594506120507,
+          "max_high": 688.6469116210938,
+          "min_low": 623.6599731445312,
+          "volume_total": 95903071,
+          "volume_avg": 35129.33003663004,
+          "price_volatility": 13.419681825775596,
+          "price_change": -6.66998291015625,
+          "price_change_pct": -1.006076173115696
+        },
+        "error": null
+      },
+      "5m": {
+        "summary": {
+          "avg_close": 647.8810651386534,
+          "max_high": 740.8900146484375,
+          "min_low": 583.5499877929688,
+          "volume_total": 717793129,
+          "volume_avg": 154563.5506029285,
+          "price_volatility": 43.416717378993035,
+          "price_change": 39.239990234375,
+          "price_change_pct": 6.359185555639411
+        },
+        "error": null
+      },
+      "15m": {
+        "summary": {
+          "avg_close": 647.8865653735414,
+          "max_high": 740.8900146484375,
+          "min_low": 583.5499877929688,
+          "volume_total": 717793129,
+          "volume_avg": 463690.6518087855,
+          "price_volatility": 43.41066843618039,
+          "price_change": 42.3499755859375,
+          "price_change_pct": 6.8979517458917465
+        },
+        "error": null
+      },
+      "30m": {
+        "summary": {
+          "avg_close": 647.8526495408643,
+          "max_high": 740.8900146484375,
+          "min_low": 583.5499877929688,
+          "volume_total": 717793129,
+          "volume_avg": 927381.303617571,
+          "price_volatility": 43.406267317928105,
+          "price_change": 43.70001220703125,
+          "price_change_pct": 7.133531496672557
+        },
+        "error": null
+      },
+      "60m": {
+        "summary": {
+          "avg_close": 343.0129687421396,
+          "max_high": 740.8900146484375,
+          "min_low": 88.08999633789062,
+          "volume_total": 14871753310,
+          "volume_avg": 2924056.883602045,
+          "price_volatility": 172.25503239675396,
+          "price_change": 433.1468811035156,
+          "price_change_pct": 194.10300287967598
+        },
+        "error": null
+      },
+      "1d": {
+        "summary": {
+          "avg_close": 191.21554129235597,
+          "max_high": 740.9099731445312,
+          "min_low": 17.483215555895605,
+          "volume_total": 93819613508,
+          "volume_avg": 29163697.080509793,
+          "price_volatility": 140.11185636877514,
+          "price_change": 618.3854522705078,
+          "price_change_pct": 1623.718712275738
+        },
+        "error": null
+      }
+    },
+    "NVDA": {
+      "1m": {
+        "summary": {
+          "avg_close": 122.17212187099805,
+          "max_high": 135.0,
+          "min_low": 110.11000061035156,
+          "volume_total": 2233966378,
+          "volume_avg": 818302.7025641026,
+          "price_volatility": 6.005932638823727,
+          "price_change": -12.489997863769531,
+          "price_change_pct": -9.62397748593753
+        },
+        "error": null
+      },
+      "5m": {
+        "summary": {
+          "avg_close": 133.41213231246908,
+          "max_high": 152.36000061035156,
+          "min_low": 110.11000061035156,
+          "volume_total": 13391534383,
+          "volume_avg": 2883620.668173988,
+          "price_volatility": 8.400501011040966,
+          "price_change": -28.215003967285156,
+          "price_change_pct": -19.391088292811016
+        },
+        "error": null
+      },
+      "15m": {
+        "summary": {
+          "avg_close": 133.40741493165956,
+          "max_high": 152.36000061035156,
+          "min_low": 110.11000061035156,
+          "volume_total": 13391534383,
+          "volume_avg": 8650862.004521964,
+          "price_volatility": 8.397993119781205,
+          "price_change": -28.599998474121094,
+          "price_change_pct": -19.603810126652448
+        },
+        "error": null
+      },
+      "30m": {
+        "summary": {
+          "avg_close": 133.39515935419757,
+          "max_high": 152.36000061035156,
+          "min_low": 110.11000061035156,
+          "volume_total": 13391534383,
+          "volume_avg": 17301724.00904393,
+          "price_volatility": 8.395798702088943,
+          "price_change": -27.389991760253906,
+          "price_change_pct": -18.931430154018013
+        },
+        "error": null
+      },
+      "60m": {
+        "summary": {
+          "avg_close": 61.36977762300294,
+          "max_high": 152.88999938964844,
+          "min_low": 10.812999725341797,
+          "volume_total": 71349982086,
+          "volume_avg": 14028702.730239874,
+          "price_volatility": 45.30922752413827,
+          "price_change": 92.8182201385498,
+          "price_change_pct": 379.286742491053
+        },
+        "error": null
+      },
+      "1d": {
+        "summary": {
+          "avg_close": 8.985967958174204,
+          "max_high": 153.1300048828125,
+          "min_low": 0.0305692039655045,
+          "volume_total": 3932481909283,
+          "volume_avg": 598551279.9517504,
+          "price_volatility": 24.42339215475365,
+          "price_change": 117.26238788664341,
+          "price_change_pct": 311742.31863664975
+        },
+        "error": null
+      }
+    },
+    "TSLA": {
+      "1m": {
+        "summary": {
+          "avg_close": 287.72078966972157,
+          "max_high": 327.45001220703125,
+          "min_low": 261.840087890625,
+          "volume_total": 735251104,
+          "volume_avg": 269322.74871794874,
+          "price_volatility": 11.860348596519755,
+          "price_change": -46.19000244140625,
+          "price_change_pct": -14.192656539838449
+        },
+        "error": null
+      },
+      "5m": {
+        "summary": {
+          "avg_close": 385.49979470291595,
+          "max_high": 488.5398864746094,
+          "min_low": 261.840087890625,
+          "volume_total": 4731540816,
+          "volume_avg": 1018850.3049095607,
+          "price_volatility": 48.176197225345454,
+          "price_change": -87.5496826171875,
+          "price_change_pct": -23.86787602270288
+        },
+        "error": null
+      },
+      "15m": {
+        "summary": {
+          "avg_close": 385.4772997518534,
+          "max_high": 488.5398864746094,
+          "min_low": 261.840087890625,
+          "volume_total": 4731540816,
+          "volume_avg": 3056550.914728682,
+          "price_volatility": 48.23894287010475,
+          "price_change": -91.39498901367188,
+          "price_change_pct": -24.657697674297978
+        },
+        "error": null
+      },
+      "30m": {
+        "summary": {
+          "avg_close": 385.44596705079385,
+          "max_high": 488.5398864746094,
+          "min_low": 261.840087890625,
+          "volume_total": 4731540816,
+          "volume_avg": 6113101.829457364,
+          "price_volatility": 48.34178142259708,
+          "price_change": -93.21759033203125,
+          "price_change_pct": -25.026361399340914
+        },
+        "error": null
+      },
+      "60m": {
+        "summary": {
+          "avg_close": 237.5961799351568,
+          "max_high": 488.5398864746094,
+          "min_low": 101.80999755859375,
+          "volume_total": 69254788888,
+          "volume_avg": 13616749.683051514,
+          "price_volatility": 65.62069121967146,
+          "price_change": -67.22998046875,
+          "price_change_pct": -19.40315228825914
+        },
+        "error": null
+      },
+      "1d": {
+        "summary": {
+          "avg_close": 84.78262350723172,
+          "max_high": 488.5400085449219,
+          "min_low": 0.9986670017242432,
+          "volume_total": 356486027500,
+          "volume_avg": 96504068.08337845,
+          "price_volatility": 111.33938897483941,
+          "price_change": 277.5073391199112,
+          "price_change_pct": 17424.06554393893
+        },
+        "error": null
+      }
+    }
+  }
+}
