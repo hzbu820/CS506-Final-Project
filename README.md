@@ -93,3 +93,8 @@ The following models will be implemented and compared:
 - **Midterm & Final Presentation**: Recorded and uploaded to YouTube.
 - **README.md**: Comprehensive documentation including project setup, instructions, and results.
 
+
+Reference:
+https://people.duke.edu/~rnau/411arim.htm
+https://documentation.sas.com/doc/en/capcdc/v_025/vfcdc/vfug/p141sb29rauf5pn1d2j7v5l9mfcs.htm
+https://www.math.pku.edu.cn/teachers/lidf/course/fts/ftsnotes/html/_ftsnotes/fts-arma.html#arma-concept
