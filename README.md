@@ -1,128 +1,132 @@
-# Stock Price Prediction Using Advanced Machine Learning Techniques
+# LSTM Model Implementation
 
-## Project Overview
-The goal of this project is to develop an advanced machine learning model to predict stock price movements based on historical stock prices, trading volume, and external financial indicators. The project aims to outperform traditional "buy-and-hold" strategies by leveraging deep learning, time-series analysis, and sentiment analysis from financial news.
 
-## Project Goals
-- Successfully predict next-day stock price movement.
-- Compare different modeling approaches (LSTM, Transformer, XGBoost, GARCH, and hybrid models).
-- Develop an **interactive visualization dashboard** to display stock trends and sentiment analysis.
-- Provide a **reproducible pipeline** that allows researchers to analyze financial data efficiently.
+## Project Structure
 
-## Data Collection
-We will collect data from the following sources:
+- `main.py`: Main script demonstrating the usage with sample data
+- `data_processor.py`: Data preprocessing utilities 
+- `lstm_model.py`: LSTM model definition
+- `trainer.py`: Training pipeline
+- `load_custom_data.py`: Script for using the model with your own data
 
-1. **Stock Price Data**
-   - **Source**: Yahoo Finance API
-   - **Collection Method**: API calls to retrieve daily historical stock prices, adjusted close prices, and volume data.
-
-2. **Trading Volume & Market Indicators**
-   - **Source**: Alpha Vantage and Quandl
-   - **Collected Data**: VIX (Volatility Index), S&P 500 index movements, bond yields.
-   - **Collection Method**: Scheduled API requests with caching to avoid rate limits.
-
-3. **Sentiment Analysis Data**
-   - **Sources**: Bloomberg, Reuters (web scraping), Twitter API
-   - **Collected Data**: Financial news headlines and social media sentiment related to selected stocks.
-   - **Collection Method**:
-     - Web scraping with BeautifulSoup or Scrapy for financial news.
-     - Twitter API for real-time sentiment analysis (if API access is granted).
-   - **Preprocessing Considerations**: Handling API rate limits and removing duplicate news articles.
-
-## Data Cleaning
-- **Handling missing values**: Forward filling, interpolation, or mean imputation.
-- **Outlier detection**: Removing extreme price fluctuations caused by stock splits or anomalies.
-- **Normalization**: Standardizing numerical data to improve model performance.
-
-## Feature Extraction
-We will generate key features to enhance model learning:
-- **Technical Indicators**: Moving Averages, RSI, MACD, Bollinger Bands.
-- **Sentiment Features**: Extracted from financial headlines using NLP models (BERT, VADER, ChatGPT sentiment API).
-- **Time-based Features**: Weekday, holiday effects, earnings release impact.
-
-## Data Visualization
-We will create multiple visualizations to explore stock trends and model insights:
-- **Interactive K-line (candlestick) charts** to track stock price movements.
-- **Correlation heatmaps** to analyze feature relationships.
-- **Dual-axis line charts** to compare sentiment analysis trends with stock price changes.
-- **Model performance plots** comparing accuracy (MSE, R², Sharpe Ratio) across different models.
-- **Interactive dashboards (Plotly, Dash)** allowing users to dynamically select stocks and timeframes.
-
-## Model Training
-The following models will be implemented and compared:
-1. **Baseline Model**: Simple Moving Average for naive prediction.
-2. **Traditional Machine Learning Models**: XGBoost, Random Forest.
-3. **Deep Learning Approaches**:
-   - **LSTM (Long Short-Term Memory Networks)**: Capturing sequential dependencies in stock prices.
-   - **Transformer-based Models**: Leveraging attention mechanisms for forecasting.
-   - **Hybrid Models**: Combining CNN and LSTM for feature extraction and time-series prediction.
-
-## Test Plan
-- **Data Splitting**: 80% training, 20% test set.
-- **Cross-validation**: Rolling window validation to ensure performance stability.
-- **Evaluation Metrics**:
-  - **Mean Squared Error (MSE)** – Measures prediction accuracy.
-  - **R-squared (R²)** – Assesses model fit.
-  - **Sharpe Ratio** – Evaluates financial performance.
-
-## Reproducibility and GitHub Workflow
-- The project will be maintained on GitHub with the following structure:
-- README.md: Project details, setup, and usage instructions.
-- Notebooks/: Jupyter notebooks for data preprocessing and visualization.
-- src/: Python scripts for data collection, model training, and evaluation.
-- tests/: Unit tests for data processing and model evaluation.
-- **CI/CD with GitHub Actions**:
-- Automated testing for data processing and model evaluation.
-- Linting and code formatting with pre-commit hooks.
-
-## Timeline
-| Date      | Task                                   |
-|-----------|--------------------------------------|
-| **Feb 10**  | Proposal submission                   |
-| **Mar 31**  | Midterm report with preliminary results |
-| **May 1**   | Final report and presentation        |
-
-## Expected Outcome
-- A machine learning pipeline capable of predicting stock price movements.
-- Comparison of various prediction models with performance benchmarks.
-- Interactive visualizations to interpret stock market behavior.
-- A reproducible GitHub repository with clear documentation.
-
-## Submission Details
-- **GitHub Repository**: [Project Repository Link]
-- **Midterm & Final Presentation**: Recorded and uploaded to YouTube.
-- **README.md**: Comprehensive documentation including project setup, instructions, and results.
-
-<<<<<<< Updated upstream
-
-Reference:
-https://people.duke.edu/~rnau/411arim.htm
-https://documentation.sas.com/doc/en/capcdc/v_025/vfcdc/vfug/p141sb29rauf5pn1d2j7v5l9mfcs.htm
-https://www.math.pku.edu.cn/teachers/lidf/course/fts/ftsnotes/html/_ftsnotes/fts-arma.html#arma-concept
-=======
 ## Installation
 
-1. Clone this repository:
-   ```
-   git clone https://github.com/yourusername/CS506-Final-Project.git
-   cd CS506-Final-Project
-   ```
+Install the required dependencies: inside requirements.txt
 
-2. Create a virtual environment (recommended):
-   ```
-   python3 -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
+```bash
+pip install -r requirements.txt
+```
 
-3. Install required packages:
-   ```
-   pip install -r yfinance/requirements.txt
-   ```
+## Using the Model with our Data
 
-4. Run the system check to verify your environment:
-   ```
-   python3 yfinance/check_system.py
-   ```
+### Option 1: Using the `load_custom_data.py` script
 
-## Usage
->>>>>>> Stashed changes
+This script provides comprehensive utilities for loading different types of data and using it with the LSTM model.
+
+```python
+from load_custom_data import load_csv_data, train_with_custom_data, make_predictions
+
+# 1. Load data 
+data = load_csv_data(
+    file_path='your_data.csv', 
+    target_column='target',  # Column you want to predict
+    feature_columns=['feature1', 'feature2']  # Optional - columns to use as features
+)
+
+# 2. Train model
+model, history, data_processor, test_X, test_y = train_with_custom_data(
+    data, 
+    sequence_length=15,  # Number of time steps to use for prediction
+    train_split=0.8,     # Ratio of training data
+    batch_size=32,       # Batch size for training
+    hidden_size=128,     # Hidden units in LSTM layer
+    num_layers=2,        # Number of LSTM layers
+    learning_rate=0.001, # Learning rate for optimization
+    epochs=100           # Number of training epochs
+)
+
+# 3. Make predictions
+target_idx = 0  # Index of target column (if multi-dimensional)
+predictions = make_predictions(model, test_X, test_y, data_processor, target_idx)
+```
+
+Directly with own script
+
+If you prefer to integrate the model into your own script
+
+```python
+import numpy as np
+import torch
+from torch.utils.data import DataLoader, TensorDataset
+from data_processor import DataProcessor
+from lstm_model import LSTMModel
+from trainer import LSTMTrainer
+
+# 1. Prepare your data - should be numpy array with shape (n_samples, n_features)
+data = your_data_loading_function()  # Replace with your data loading
+
+# 2. Initialize data processor
+data_processor = DataProcessor(sequence_length=15)  # Adjust sequence length
+
+# 3. Process data
+train_X, train_y, test_X, test_y = data_processor.prepare_data(data, train_split=0.8)
+
+# 4. Convert to PyTorch tensors
+train_X = torch.FloatTensor(train_X)
+train_y = torch.FloatTensor(train_y)
+test_X = torch.FloatTensor(test_X)
+test_y = torch.FloatTensor(test_y)
+
+# 5. Create data loaders
+train_dataset = TensorDataset(train_X, train_y)
+test_dataset = TensorDataset(test_X, test_y)
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=32)
+
+# 6. Initialize model
+input_size = data.shape[1]   # Number of features in your data
+hidden_size = 128            # Adjust based on your needs
+num_layers = 2               # Number of LSTM layers
+output_size = data.shape[1]  # Usually same as input_size for forecasting
+
+model = LSTMModel(input_size, hidden_size, num_layers, output_size)
+
+# 7. Train model
+trainer = LSTMTrainer(model, learning_rate=0.001)
+history = trainer.train(train_loader, test_loader, epochs=100)
+
+# 8. Make predictions
+model.load_state_dict(torch.load('best_model.pth'))
+predictions = model.predict(test_X)
+
+# 9. Convert predictions back to original scale
+predictions = data_processor.inverse_transform(predictions)
+```
+
+## Data Format Requirements
+
+- Your data should be in a format that can be converted to a NumPy array
+- For time series data, the shape should be (n_samples, n_features)
+- For CSV files, each row represents a time step and each column a feature
+- The model can handle both univariate (1 feature) and multivariate (multiple features) data
+
+## Customizing the Model
+
+You can customize the LSTM model by modifying the parameters:
+
+- `sequence_length`: Number of previous time steps used to predict the next step
+- `hidden_size`: Number of units in LSTM hidden layers (increase for complex patterns)
+- `num_layers`: Number of stacked LSTM layers (increase for more complex dependencies)
+- `learning_rate`: Controls how quickly the model learns
+- `batch_size`: Number of samples processed before model update
+
+
+
+## Evaluation
+
+The model automatically calculates:
+- Mean Squared Error (MSE)
+- Root Mean Squared Error (RMSE)
+- Mean Absolute Error (MAE)
+
+These metrics are displayed after prediction with the `make_predictions` function. 
