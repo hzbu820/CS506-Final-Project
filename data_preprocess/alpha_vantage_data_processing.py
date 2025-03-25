@@ -518,42 +518,4 @@ if __name__ == "__main__":
                         print(f"   - LSTM {window_size}: X shape {paths['shape_X']}, y shape {paths['shape_y']}")
                 else:
                     print(f"   - {file_type}: {file_path}")
-
-# Example of how to load and use this data for model training:
-"""
-def load_lstm_training_data(x_path, y_path):
-    X_data = np.load(x_path)['X']
-    y_data = np.load(y_path)['y']
-    return X_data, y_data
-
-def load_arima_training_data(csv_path):
-    df = pd.read_csv(csv_path, index_col='date', parse_dates=['date'])
-    return df
-
-# For LSTM training:
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout
-
-def create_lstm_model(input_shape, output_units=1):
-    model = Sequential()
-    model.add(LSTM(50, return_sequences=True, input_shape=input_shape))
-    model.add(Dropout(0.2))
-    model.add(LSTM(50, return_sequences=False))
-    model.add(Dropout(0.2))
-    model.add(Dense(output_units))
-    model.compile(optimizer='adam', loss='mean_squared_error')
-    return model
-
-# Example usage:
-X, y = load_lstm_training_data('processed_data/AAPL_daily_lstm_X_w60_20250304.npz', 
-                              'processed_data/AAPL_daily_lstm_y_w60_20250304.npz')
-
-# Split into train/test
-split = int(0.8 * len(X))
-X_train, X_test = X[:split], X[split:]
-y_train, y_test = y[:split], y[split:]
-
-# Create and train model
-model = create_lstm_model((X.shape[1], X.shape[2]))
-model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test))
-"""
+                    

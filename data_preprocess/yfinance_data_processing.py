@@ -4,9 +4,6 @@ This version stores:
  1) ARIMA data as CSV in a dedicated 'arima' subfolder
  2) LSTM data as NPZ in a dedicated 'lstm' subfolder
 
-We skip creating separate CSV for LSTM arrays, because your classmate wants them in .npz.
-You still can produce a 'full' CSV with indicators if you like, or remove that if unneeded.
-
 Folder structure example:
 
  yfinance
@@ -38,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 class YFinanceDataProcessor:
     def __init__(self, data_dir: str):
-        self.data_dir = data_dir  # e.g. 'D:/yfinance/output'
+        self.data_dir = data_dir
         self.scaler = MinMaxScaler(feature_range=(0, 1))
 
     def get_available_symbols(self) -> List[str]:
@@ -210,7 +207,7 @@ class YFinanceDataProcessor:
         timeframe: str
     ) -> str:
         """
-        If you want to store the full indicator CSV, we can keep it in e.g. "full" subfolder.
+        Store the full indicator CSV, we can keep it in e.g. "full" subfolder.
         """
         full_dir = os.path.join(output_dir, "full")
         os.makedirs(full_dir, exist_ok=True)
@@ -281,12 +278,11 @@ class YFinanceDataProcessor:
         return results
 
 if __name__ == "__main__":
-    data_dir = "data_raw/yfinance/output"  # example
-    output_dir = "data_processed/yfinance"  # we'll place subfolders: arima, lstm, full
+    data_dir = "data_raw/yfinance/output"
+    output_dir = "data_processed/yfinance"
 
     processor = YFinanceDataProcessor(data_dir)
 
-    # Example usage
     processing_results = processor.process_all_data(
         output_dir=output_dir,
         symbols=None,
