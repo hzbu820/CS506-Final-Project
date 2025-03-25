@@ -326,9 +326,8 @@ class YFinanceDataProcessor:
         return results
 
 if __name__ == "__main__":
-    # Example usage
-    data_dir = "data_raw/yfinance/output"  # or "D:/yfinance/output"
-    output_dir = "data_processed/yfinance" # or "D:/yfinance/processed_data"
+    data_dir = "data_raw/yfinance/output"
+    output_dir = "data_processed/yfinance"
 
     processor = YFinanceDataProcessor(data_dir)
 
