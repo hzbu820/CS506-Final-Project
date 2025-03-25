@@ -3,6 +3,15 @@
 This version stores:
  1) ARIMA data as CSV in a dedicated 'arima' subfolder
  2) LSTM data as NPZ in a dedicated 'lstm' subfolder
+ 3) Uses a dictionary of LSTM window sizes per timeframe, e.g.:
+    {
+      "1m": [30, 60, 120],
+      "5m": [36, 72],
+      "15m": [32, 64],
+      "30m": [24, 48],
+      "60m": [24, 72],
+      "1d": [20, 60]
+    }
 
 Folder structure example:
 
@@ -14,7 +23,7 @@ Folder structure example:
         └─ lstm
              AAPL_1m_ws30.npz
              AAPL_1m_ws60.npz
-             AAPL_1m_ws90.npz
+             AAPL_1m_ws120.npz
 """
 import os
 import json
@@ -35,8 +44,23 @@ logger = logging.getLogger(__name__)
 
 class YFinanceDataProcessor:
     def __init__(self, data_dir: str):
+        """
+        Args:
+            data_dir: Path to your raw yfinance data folder, e.g. 'D:/yfinance/output'
+        """
         self.data_dir = data_dir
         self.scaler = MinMaxScaler(feature_range=(0, 1))
+
+        # Dictionary of LSTM window sizes for each timeframe
+        # You can edit these values to suit your preference.
+        self.lstm_windows_map = {
+            "1m": [30, 60, 120],
+            "5m": [36, 72],
+            "15m": [32, 64],
+            "30m": [24, 48],
+            "60m": [24, 72],
+            "1d": [20, 60]
+        }
 
     def get_available_symbols(self) -> List[str]:
         entries = os.listdir(self.data_dir)
@@ -150,6 +174,10 @@ class YFinanceDataProcessor:
         target_col: str = 'close',
         forecast_horizon: int = 1
     ) -> Tuple[np.ndarray, np.ndarray, MinMaxScaler]:
+        """
+        Creates X, y arrays for LSTM. By default, window_size=60 if none is provided,
+        but we will override it for each timeframe from the dictionary.
+        """
         if features is None:
             features = df.select_dtypes(include=[np.number]).columns.tolist()
             if target_col in features:
@@ -207,7 +235,7 @@ class YFinanceDataProcessor:
         timeframe: str
     ) -> str:
         """
-        Store the full indicator CSV, we can keep it in e.g. "full" subfolder.
+        If you want to store the full indicator CSV, we can keep it in e.g. "full" subfolder.
         """
         full_dir = os.path.join(output_dir, "full")
         os.makedirs(full_dir, exist_ok=True)
@@ -223,9 +251,26 @@ class YFinanceDataProcessor:
         timeframes: Optional[List[str]] = None,
         save_full: bool = True,
         save_arima: bool = True,
-        save_lstm: bool = True,
-        lstm_window_sizes: List[int] = [60]
+        save_lstm: bool = True
     ) -> List[Dict[str, Any]]:
+        """
+        Processes all data. For each symbol/timeframe:
+         - calculates indicators
+         - saves optional full CSV
+         - prepares ARIMA CSV
+         - prepares LSTM NPZ files using window sizes from self.lstm_windows_map
+
+        Args:
+            output_dir: Directory to store output subfolders (arima, lstm, full)
+            symbols: Which symbols to process (None => all discovered)
+            timeframes: Which timeframes to process (None => all discovered for that symbol)
+            save_full: Whether to save a CSV with all indicators in "full" subfolder
+            save_arima: Whether to save ARIMA data in "arima" subfolder
+            save_lstm: Whether to save LSTM .npz data in "lstm" subfolder
+
+        Returns:
+            A list of dictionaries summarizing the processed files.
+        """
         results = []
 
         if not symbols:
@@ -247,21 +292,24 @@ class YFinanceDataProcessor:
                     df = self.load_yfinance_data(symbol, tf)
                     df_ind = self.calculate_technical_indicators(df)
 
-                    # If requested, save full CSV with indicators
+                    # Optional: save CSV with all indicators
                     if save_full:
                         path_full = self.save_full_csv(df_ind, output_dir, symbol, tf)
                         result_entry['files']['full'] = path_full
 
-                    # If requested, save ARIMA CSV
+                    # Optional: save ARIMA CSV
                     if save_arima:
                         arima_df = self.prepare_arima_data(df_ind)
                         path_arima = self.save_arima_data(arima_df, output_dir, symbol, tf)
                         result_entry['files']['arima'] = path_arima
 
-                    # If requested, store NPZ for LSTM
+                    # Optional: create NPZ for LSTM with one or more window sizes
                     if save_lstm:
+                        # look up the window sizes for this timeframe
+                        # default to [60] if not found
+                        ws_list = self.lstm_windows_map.get(tf, [60])
                         lstm_dict = {}
-                        for ws in lstm_window_sizes:
+                        for ws in ws_list:
                             X, y, _ = self.prepare_lstm_data(df_ind, window_size=ws)
                             npz_path = self.save_lstm_data(X, y, output_dir, symbol, tf, ws)
                             lstm_dict[ws] = {
@@ -278,8 +326,9 @@ class YFinanceDataProcessor:
         return results
 
 if __name__ == "__main__":
-    data_dir = "data_raw/yfinance/output"
-    output_dir = "data_processed/yfinance"
+    # Example usage
+    data_dir = "data_raw/yfinance/output"  # or "D:/yfinance/output"
+    output_dir = "data_processed/yfinance" # or "D:/yfinance/processed_data"
 
     processor = YFinanceDataProcessor(data_dir)
 
@@ -289,8 +338,7 @@ if __name__ == "__main__":
         timeframes=None,
         save_full=True,     # saves CSV with all indicators to processed_data/full
         save_arima=True,    # saves ARIMA CSV to processed_data/arima
-        save_lstm=True,     # saves NPZ to processed_data/lstm
-        lstm_window_sizes=[30, 60, 90]
+        save_lstm=True      # saves NPZ to processed_data/lstm
     )
 
     logger.info("\nProcessing Summary:")
