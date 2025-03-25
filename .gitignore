@@ -178,3 +178,5 @@ cython_debug/
 .pypirc
 
 *.__MACOSX/
+
+data_processed/yfinance/lstm/

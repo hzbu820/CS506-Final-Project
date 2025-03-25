@@ -482,10 +482,10 @@ class StockDataProcessor:
 # Usage example
 if __name__ == "__main__":
     # Directory with Alpha Vantage JSON files
-    data_dir = "data_alpha_vantage"
+    data_dir = "data_raw/alpha_vantage"
     
     # Directory to save processed data
-    output_dir = "processed_data"
+    output_dir = "data_processed/alpha_vantage"
     
     # Create processor
     processor = StockDataProcessor(data_dir)
