@@ -103,9 +103,10 @@ def ensemble_direction_prediction(ticker='AAPL', future_days=14):
         
         if price_diff_pct > 0.2:  # More than 20% different from current price
             print(f"Warning: {model_name} predictions start at ${first_pred:.2f}, which is {price_diff_pct*100:.1f}% from current price")
-            # Apply scaling correction
+            # Apply scaling correction - create a copy to avoid SettingWithCopyWarning
+            future_predictions = future_predictions.copy()
             scaling_factor = current_price / first_pred
-            future_predictions['Predicted_Price'] = future_predictions['Predicted_Price'] * scaling_factor
+            future_predictions.loc[:, 'Predicted_Price'] = future_predictions['Predicted_Price'] * scaling_factor
             print(f"Applied scaling correction. New first prediction: ${future_predictions['Predicted_Price'].iloc[0]:.2f}")
         
         # Calculate the predicted direction (up or down)

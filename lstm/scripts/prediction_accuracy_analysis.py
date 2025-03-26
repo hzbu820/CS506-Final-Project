@@ -10,11 +10,19 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import sys
 import traceback
 
-# Add scripts directory to the Python path
-sys.path.append("scripts")
+# Add parent directory to the Python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Import intraday data visualizer functions
-from scripts.intraday_data_visualizer import download_intraday_data, calculate_technical_indicators
+# Try to import from visualize_intraday_data instead
+try:
+    from visualize_intraday_data import download_intraday_data, calculate_technical_indicators
+except ImportError:
+    # Fallback implementation if module not found
+    def download_intraday_data(ticker, interval, period):
+        return yf.download(ticker, interval=interval, period=period)
+    
+    def calculate_technical_indicators(data):
+        return data
 
 def parse_arguments():
     """Parse command line arguments"""
@@ -28,10 +36,14 @@ def parse_arguments():
                         help='Path to the prediction CSV file')
     parser.add_argument('--validation_period', type=str, default='1d',
                         help='Period to validate predictions (default: 1d)')
+    parser.add_argument('--debug', action='store_true',
+                        help='Enable debug output')
+    parser.add_argument('--force-future', action='store_true',
+                        help='Force the script to treat predictions as future predictions')
     
     return parser.parse_args()
 
-def download_actual_data(ticker, start_date, end_date, interval):
+def download_actual_data(ticker, start_date, end_date, interval, debug=False):
     """Download the actual price data for comparison"""
     try:
         # Convert dates to strings if they are datetime objects
@@ -41,6 +53,10 @@ def download_actual_data(ticker, start_date, end_date, interval):
             end_date = end_date.strftime('%Y-%m-%d')
             
         print(f"Downloading actual data for {ticker} from {start_date} to {end_date} with {interval} interval...")
+        
+        if debug:
+            print(f"DEBUG: Attempting to download data with yf.download({ticker}, start={start_date}, end={end_date}, interval={interval})")
+            
         data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
         
         if data.empty:
@@ -54,7 +70,32 @@ def download_actual_data(ticker, start_date, end_date, interval):
         # Reset index to make Datetime a column
         data = data.reset_index()
         
+        if debug:
+            print(f"DEBUG: Downloaded data shape: {data.shape}")
+            print(f"DEBUG: Downloaded data columns: {data.columns.tolist()}")
+            print(f"DEBUG: First few rows of downloaded data: \n{data.head()}")
+            
+        # Handle column name variations
+        if 'Datetime' not in data.columns and 'Date' in data.columns:
+            data['Datetime'] = data['Date']
+        elif 'Datetime' not in data.columns and 'DateTime' in data.columns:
+            data['Datetime'] = data['DateTime']
+        elif 'Datetime' not in data.columns and 'Time' in data.columns:
+            data['Datetime'] = data['Time']
+        elif 'Datetime' not in data.columns and 'index' in data.columns:
+            data['Datetime'] = data['index']
+        elif 'Datetime' not in data.columns:
+            # Try to find the datetime column based on dtype
+            for col in data.columns:
+                if pd.api.types.is_datetime64_any_dtype(data[col]):
+                    data['Datetime'] = data[col]
+                    break
+            
         print(f"Downloaded {len(data)} data points for actual prices.")
+        
+        if debug and 'Datetime' in data.columns:
+            print(f"DEBUG: Date range of downloaded data: {data['Datetime'].min()} to {data['Datetime'].max()}")
+            
         return data
         
     except Exception as e:
@@ -68,8 +109,26 @@ def load_predictions(prediction_file):
         print(f"Loading predictions from {prediction_file}...")
         predictions = pd.read_csv(prediction_file)
         
+        # Check for datetime column names
+        datetime_columns = ['Datetime', 'Date', 'DateTime', 'Time']
+        datetime_col = None
+        
+        for col in datetime_columns:
+            if col in predictions.columns:
+                datetime_col = col
+                break
+        
+        if datetime_col is None:
+            print(f"Warning: No datetime column found in {prediction_file}")
+            print(f"Available columns: {predictions.columns.tolist()}")
+            return None
+            
         # Ensure datetime column is datetime type
-        predictions['Datetime'] = pd.to_datetime(predictions['Datetime'])
+        predictions[datetime_col] = pd.to_datetime(predictions[datetime_col])
+        
+        # Standardize by always using 'Datetime' as the column name
+        if datetime_col != 'Datetime':
+            predictions['Datetime'] = predictions[datetime_col]
         
         print(f"Loaded {len(predictions)} predictions.")
         return predictions
@@ -79,26 +138,67 @@ def load_predictions(prediction_file):
         traceback.print_exc()
         return None
 
-def match_predictions_with_actual(predictions, actual_data):
+def match_predictions_with_actual(predictions, actual_data, debug=False):
     """Match predicted prices with actual prices based on datetime"""
     try:
         # Convert datetime to string format for easier matching
         merged_data = None
         
+        if debug:
+            print(f"DEBUG in match_predictions: Predictions shape: {predictions.shape}")
+            print(f"DEBUG in match_predictions: Actual data shape: {actual_data.shape}")
+            print(f"DEBUG in match_predictions: Predictions datetime column: {predictions['Datetime'].dtype}")
+            print(f"DEBUG in match_predictions: Actual data datetime column: {actual_data['Datetime'].dtype}")
+            
         # If we have both datasets
         if predictions is not None and actual_data is not None:
-            # Standardize datetime format
-            predictions['Date_Key'] = predictions['Datetime'].dt.strftime('%Y-%m-%d %H:%M:00')
-            actual_data['Date_Key'] = actual_data['Datetime'].dt.strftime('%Y-%m-%d %H:%M:00')
-            
-            # Merge on the datetime key
-            merged_data = pd.merge(
-                predictions, 
-                actual_data[['Date_Key', 'Close']], 
-                on='Date_Key', 
-                how='left',
-                suffixes=('', '_Actual')
-            )
+            if debug:
+                print("DEBUG: Both datasets are available for matching")
+                
+            # Ensure both are datetime type
+            predictions['Datetime'] = pd.to_datetime(predictions['Datetime'])
+            actual_data['Datetime'] = pd.to_datetime(actual_data['Datetime'])
+                
+            # For daily predictions, match with daily data
+            if predictions['Datetime'].dt.hour.nunique() <= 1:
+                if debug:
+                    print("DEBUG: Detected daily predictions, using date matching")
+                
+                # Create date-only columns for matching
+                predictions['Date_Key'] = predictions['Datetime'].dt.date
+                actual_data['Date_Key'] = actual_data['Datetime'].dt.date
+                
+                # Get only the last price of each day from actual data
+                daily_actual = actual_data.groupby('Date_Key')['Close'].last().reset_index()
+                
+                if debug:
+                    print(f"DEBUG: Daily actual data shape: {daily_actual.shape}")
+                    print(f"DEBUG: Daily actual data: \n{daily_actual.head()}")
+                    print(f"DEBUG: Prediction date keys: \n{predictions['Date_Key'].head()}")
+                
+                # Merge on the date key
+                merged_data = pd.merge(
+                    predictions, 
+                    daily_actual, 
+                    on='Date_Key', 
+                    how='left'
+                )
+            else:
+                # For intraday predictions, match by exact datetime
+                if debug:
+                    print("DEBUG: Detected intraday predictions, using exact datetime matching")
+                
+                # Standardize datetime format
+                predictions['Date_Key'] = predictions['Datetime'].dt.strftime('%Y-%m-%d %H:%M:00')
+                actual_data['Date_Key'] = actual_data['Datetime'].dt.strftime('%Y-%m-%d %H:%M:00')
+                
+                # Merge on the datetime key
+                merged_data = pd.merge(
+                    predictions, 
+                    actual_data[['Date_Key', 'Close']], 
+                    on='Date_Key', 
+                    how='left'
+                )
             
             # Rename columns for clarity
             merged_data = merged_data.rename(columns={
@@ -118,8 +218,14 @@ def match_predictions_with_actual(predictions, actual_data):
                 # Calculate if direction prediction was correct
                 merged_data['Direction_Correct'] = merged_data['Direction_Predicted'] == merged_data['Direction_Actual']
                 
-                print(f"Matched {merged_data['Price_Actual'].notna().sum()} predictions with actual data.")
+                matches = merged_data['Price_Actual'].notna().sum()
+                print(f"Matched {matches} predictions with actual data.")
                 
+                if debug and matches == 0:
+                    print("DEBUG: No matches found. Checking data:")
+                    print(f"DEBUG: Predictions Date_Key sample: {predictions['Date_Key'].head().tolist()}")
+                    print(f"DEBUG: Actual Date_Key sample: {actual_data['Date_Key'].head().tolist()}")
+                    
             else:
                 print("Warning: No actual prices matched with predictions.")
                 
@@ -421,30 +527,127 @@ def main():
     args = parse_arguments()
     
     try:
+        if args.debug:
+            print("DEBUG: Starting script")
+            print(f"DEBUG: Arguments: {args}")
+        
         # Load predictions
         predictions = load_predictions(args.prediction_file)
         if predictions is None:
             print("Could not load predictions. Exiting.")
             return
             
+        if args.debug:
+            print(f"DEBUG: Predictions loaded, shape: {predictions.shape}")
+            print(f"DEBUG: Columns: {predictions.columns.tolist()}")
+            print(f"DEBUG: First few rows: \n{predictions.head()}")
+            
         # Determine date range for actual data
         min_date = predictions['Datetime'].min()
         max_date = predictions['Datetime'].max()
         print(f"Prediction period: {min_date} to {max_date}")
         
+        if args.debug:
+            print(f"DEBUG: Min date: {min_date}, Max date: {max_date}")
+            
+        # Get current date to determine if we're analyzing past or future predictions
+        now = datetime.now()
+        
+        if args.debug:
+            print(f"DEBUG: Current date: {now}")
+            
+        # Check if these are future predictions
+        is_future = min_date > now
+        
+        if args.force_future:
+            is_future = True
+            print("Note: Forcing future mode for this analysis")
+            
+        if args.debug:
+            print(f"DEBUG: Is future prediction: {is_future}")
+            
+        # For future predictions, just show stats
+        if is_future:
+            print("Predictions are for future dates - showing prediction summary without accuracy metrics:")
+            print("=" * 60)
+            print(f"Prediction Summary for {args.ticker}")
+            print("=" * 60)
+            print(f"Prediction file: {args.prediction_file}")
+            print(f"Prediction period: {min_date.strftime('%Y-%m-%d')} to {max_date.strftime('%Y-%m-%d')}")
+            print(f"Number of prediction days: {len(predictions)}")
+            print(f"First predicted price: ${float(predictions['Predicted_Price'].iloc[0]):.2f}")
+            print(f"Last predicted price: ${float(predictions['Predicted_Price'].iloc[-1]):.2f}")
+            
+            price_delta = float(predictions['Predicted_Price'].iloc[-1]) - float(predictions['Predicted_Price'].iloc[0])
+            predicted_change = ((float(predictions['Predicted_Price'].iloc[-1]) / float(predictions['Predicted_Price'].iloc[0])) - 1) * 100
+            print(f"Predicted change: ${price_delta:.2f} ({predicted_change:.2f}%)")
+            
+            # Current price from Yahoo Finance
+            try:
+                current_data = yf.download(args.ticker, period="1d")
+                if not current_data.empty:
+                    current_price = float(current_data['Close'].iloc[-1])
+                    print(f"Current price: ${current_price:.2f}")
+                    
+                    # Price change from current to final prediction
+                    final_price = float(predictions['Predicted_Price'].iloc[-1])
+                    final_vs_current = ((final_price / current_price) - 1) * 100
+                    print(f"Predicted change from current: {final_vs_current:.2f}%")
+            except Exception as e:
+                print(f"Could not fetch current price: {e}")
+                traceback.print_exc()
+            
+            # Direction analysis
+            directions = np.sign(predictions['Predicted_Price'].diff()).fillna(0)
+            up_days = (directions > 0).sum()
+            down_days = (directions < 0).sum()
+            neutral_days = (directions == 0).sum()
+            total_days = len(directions)
+            
+            print("\nDirection Analysis:")
+            print(f"Up days: {up_days} ({up_days/total_days*100:.1f}%)")
+            print(f"Down days: {down_days} ({down_days/total_days*100:.1f}%)")
+            print(f"Neutral days: {neutral_days} ({neutral_days/total_days*100:.1f}%)")
+            
+            # Volatility indicator
+            volatility = predictions['Predicted_Price'].pct_change().std() * 100
+            print(f"\nPredicted daily volatility: {volatility:.2f}%")
+            
+            # Trading signal
+            if predicted_change > 5:
+                signal = "BUY - Strong upward trend predicted"
+            elif predicted_change > 2:
+                signal = "BUY - Moderate upward trend predicted"
+            elif predicted_change > 0:
+                signal = "HOLD/BUY - Slight upward trend predicted"
+            elif predicted_change > -2:
+                signal = "HOLD/NEUTRAL - Minimal change predicted"
+            elif predicted_change > -5:
+                signal = "HOLD/SELL - Moderate downward trend predicted"
+            else:
+                signal = "SELL - Strong downward trend predicted"
+                
+            print(f"\nTrading Signal: {signal}")
+            print("=" * 60)
+            
+            return
+        
+        if args.debug:
+            print("DEBUG: Processing historical prediction")
+            
+        # For historical predictions that we can validate:
         # Download actual data for the prediction period
-        # Add a buffer to ensure we get enough data
-        buffer_days = 2  # Add 2 days buffer
+        buffer_days = 2  # Add buffer
         start_date = min_date - timedelta(days=buffer_days)
         end_date = max_date + timedelta(days=buffer_days)
         
-        actual_data = download_actual_data(args.ticker, start_date, end_date, args.interval)
+        actual_data = download_actual_data(args.ticker, start_date, end_date, args.interval, debug=args.debug)
         if actual_data is None:
             print("Could not download actual data. Exiting.")
             return
             
         # Match predictions with actual data
-        matched_data = match_predictions_with_actual(predictions, actual_data)
+        matched_data = match_predictions_with_actual(predictions, actual_data, debug=args.debug)
         if matched_data is None or matched_data['Price_Actual'].notna().sum() == 0:
             print("Could not match predictions with actual data. Exiting.")
             return

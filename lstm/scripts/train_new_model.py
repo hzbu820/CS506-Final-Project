@@ -97,14 +97,35 @@ def main():
         
         # Print summary
         print("\nEnhanced Prediction Summary:")
-        latest_close = float(predictor.data_loader.processed_data['Close'].iloc[-1].item())
-        future_close = float(future_df['Predicted_Price'].iloc[-1])
-        change_pct = (future_close - latest_close) / latest_close * 100
-        
-        print(f"Latest Close Price: ${latest_close:.2f}")
-        print(f"Predicted Price ({args.future_days} days): ${future_close:.2f}")
-        print(f"Predicted Change: {change_pct:.2f}%")
-        print(f"Prediction Direction: {'UP' if change_pct > 0 else 'DOWN'}")
+        try:
+            # Handle Series correctly by using .item() for scalar values
+            latest_close = float(predictor.data_loader.processed_data['Close'].iloc[-1].item())
+            future_close = float(future_df['Predicted_Price'].iloc[-1])
+            change_pct = (future_close - latest_close) / latest_close * 100
+            
+            print(f"Latest Close Price: ${latest_close:.2f}")
+            print(f"Predicted Price ({args.future_days} days): ${future_close:.2f}")
+            print(f"Predicted Change: {change_pct:.2f}%")
+            print(f"Prediction Direction: {'UP' if change_pct > 0 else 'DOWN'}")
+        except Exception as e:
+            print(f"Error calculating summary statistics: {str(e)}")
+            print(f"Latest data shape: {predictor.data_loader.processed_data.shape}")
+            print(f"Future data shape: {future_df.shape}")
+            
+            # Alternative calculation if the above fails
+            if not future_df.empty and not predictor.data_loader.processed_data.empty:
+                try:
+                    latest_row = predictor.data_loader.processed_data.iloc[-1]
+                    latest_close = float(latest_row['Close'])
+                    future_close = float(future_df['Predicted_Price'].iloc[-1])
+                    change_pct = (future_close - latest_close) / latest_close * 100
+                    
+                    print(f"Latest Close Price (alt method): ${latest_close:.2f}")
+                    print(f"Predicted Price ({args.future_days} days): ${future_close:.2f}")
+                    print(f"Predicted Change: {change_pct:.2f}%")
+                    print(f"Prediction Direction: {'UP' if change_pct > 0 else 'DOWN'}")
+                except Exception as inner_e:
+                    print(f"Alternative calculation also failed: {str(inner_e)}")
         
         print("\nAll charts and predictions have been saved to the outputs directory.")
         
