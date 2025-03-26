@@ -1,0 +1,22 @@
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE files
+.idea/
+.vscode/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Don't exclude any output files
+# We want to keep all figures and results
