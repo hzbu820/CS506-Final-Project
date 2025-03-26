@@ -1,0 +1,124 @@
+# Intraday Stock Price Prediction with LSTM
+
+This package provides tools for intraday stock price prediction and trading signal generation using LSTM neural networks. The system analyzes high-frequency stock data (e.g., 5-minute intervals) to generate short-term predictions and actionable trading signals.
+
+## Features
+
+- **High-Frequency Data Analysis**: Process and analyze stock data at 1-minute, 5-minute, 15-minute, 30-minute, or 1-hour intervals.
+- **Technical Indicator Calculation**: Automatically calculate key technical indicators (Moving Averages, MACD, RSI, Bollinger Bands) for intraday analysis.
+- **LSTM Neural Network**: Leverage deep learning to forecast short-term price movements.
+- **Trading Signal Generation**: Get actionable BUY/SELL/HOLD recommendations with confidence scores.
+- **Visual Analysis**: Generate detailed visualizations of price patterns, predictions, and signals.
+- **Customizable Parameters**: Adjust sequence length, prediction horizon, model architecture, and more.
+
+## Scripts
+
+This package includes the following main scripts:
+
+1. **intraday_lstm.py**: Trains an LSTM model on intraday data and generates predictions.
+2. **intraday_data_visualizer.py**: Downloads and visualizes intraday stock data with technical indicators.
+3. **intraday_trading_advisor.py**: Combines LSTM predictions with technical analysis to generate trading signals.
+
+## Usage
+
+### Intraday Data Visualization
+
+To visualize intraday data with technical indicators:
+
+```bash
+python intraday_data_visualizer.py --ticker AAPL --interval 5m --period 5d --output_name analysis
+```
+
+Options:
+- `--ticker`: Stock ticker symbol (default: AAPL)
+- `--interval`: Data interval (1m, 5m, 15m, 30m, 1h) (default: 5m)
+- `--period`: Period to download (1d, 5d, 1mo, etc.) (default: 5d)
+- `--output_name`: Custom name for output files (default: auto-generated timestamp)
+
+### Intraday LSTM Model
+
+To train an LSTM model on intraday data and generate predictions:
+
+```bash
+python intraday_lstm.py --ticker AAPL --interval 5m --period 5d --epochs 20 --model_name my_model --future_predictions 24
+```
+
+Options:
+- `--ticker`: Stock ticker symbol (default: AAPL)
+- `--interval`: Data interval (1m, 5m, 15m, 30m, 1h) (default: 5m)
+- `--period`: Period to download (1d, 5d, 1mo) (default: 5d)
+- `--sequence_length`: Sequence length for LSTM (default: 12)
+- `--hidden_size`: Hidden size of LSTM (default: 128)
+- `--num_layers`: Number of LSTM layers (default: 2)
+- `--learning_rate`: Learning rate (default: 0.001)
+- `--epochs`: Number of epochs (default: 50)
+- `--batch_size`: Batch size (default: 32)
+- `--future_predictions`: Number of future intervals to predict (default: equal to sequence_length)
+- `--model_name`: Custom name for the saved model (default: auto-generated timestamp)
+- `--debug`: Enable debug mode with more verbose output
+
+### Intraday Trading Advisor
+
+To get trading signals based on LSTM predictions and technical analysis:
+
+```bash
+python intraday_trading_advisor.py --ticker AAPL --interval 5m --period 3d --sequence_length 12 --future_predictions 24
+```
+
+Options:
+- `--ticker`: Stock ticker symbol (default: AAPL)
+- `--interval`: Data interval (1m, 5m, 15m, 30m, 1h) (default: 5m)
+- `--period`: Period to download (1d, 5d, 1mo) (default: 5d)
+- `--sequence_length`: Sequence length for LSTM (default: 12)
+- `--future_predictions`: Number of future intervals to predict (default: 12)
+- `--model_path`: Path to pre-trained model (if None, will train a new model)
+- `--debug`: Enable debug mode with more verbose output
+
+## Output Files
+
+All scripts generate output files in the following directories:
+
+- `outputs/figures/`: Visualizations of price patterns, predictions, indicators, and trading signals
+- `outputs/predictions/`: CSV files containing predicted prices
+- `outputs/models/`: Trained LSTM models
+- `outputs/data/`: Processed intraday data with technical indicators
+- `outputs/signals/`: Trading signal summaries
+
+## Example Workflow
+
+1. **Visualize recent intraday data**:
+   ```bash
+   python intraday_data_visualizer.py --ticker AAPL --interval 5m --period 5d
+   ```
+
+2. **Train an LSTM model and generate predictions**:
+   ```bash
+   python intraday_lstm.py --ticker AAPL --interval 5m --period 5d --epochs 30 --model_name aapl_5m
+   ```
+
+3. **Generate trading signals using a pre-trained model**:
+   ```bash
+   python intraday_trading_advisor.py --ticker AAPL --interval 5m --model_path outputs/models/aapl_5m.pth
+   ```
+
+## Notes on Intraday Trading
+
+- Intraday predictions are generally more volatile and less accurate than daily predictions.
+- Use these signals as one of many inputs in your trading decisions, not as the sole basis.
+- The model performs best when market conditions are relatively stable.
+- Different intervals (1m, 5m, 15m, etc.) may provide different signals - compare multiple timeframes.
+- Always combine algorithmic signals with your own research and market knowledge.
+
+## Disclaimer
+
+The trading signals and predictions generated by this software are for informational purposes only and do not constitute investment advice. Always do your own research before making investment decisions.
+
+## Requirements
+
+- Python 3.6+
+- PyTorch
+- pandas
+- numpy
+- matplotlib
+- yfinance
+- scikit-learn 
