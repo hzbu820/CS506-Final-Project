@@ -1,268 +1,231 @@
-import yfinance as yf
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
-from datetime import datetime, timedelta
+"""
+Stock data loader class for fetching and preprocessing stock data
+"""
 import os
+import numpy as np
+import pandas as pd
+import yfinance as yf
+from datetime import datetime, timedelta
+from sklearn.preprocessing import MinMaxScaler
+import torch
+from torch.utils.data import DataLoader, TensorDataset
 
 class StockDataLoader:
-    """
-    Class for downloading and preprocessing stock data
-    """
-    def __init__(self, ticker, start_date=None, end_date=None, sequence_length=20):
+    """Class for loading and preprocessing stock data"""
+    
+    def __init__(self, ticker, start_date=None, end_date=None):
         """
-        Initialize the stock data loader
+        Initialize the data loader
         
         Args:
-            ticker: Stock ticker symbol
-            start_date: Start date for data (default: 5 years ago)
-            end_date: End date for data (default: today)
-            sequence_length: Length of sequence for prediction
+            ticker (str): Stock ticker symbol
+            start_date (str): Start date for data (format: 'YYYY-MM-DD')
+            end_date (str): End date for data (format: 'YYYY-MM-DD')
         """
         self.ticker = ticker
         
         # Set default dates if not provided
-        if start_date is None:
-            self.start_date = (datetime.now() - timedelta(days=5*365)).strftime('%Y-%m-%d')
-        else:
-            self.start_date = start_date
-            
         if end_date is None:
             self.end_date = datetime.now().strftime('%Y-%m-%d')
         else:
             self.end_date = end_date
             
-        self.sequence_length = sequence_length
-        self.raw_data = None
-        self.processed_data = None
-        self.feature_columns = None
-        self.scaler = None
-        
-    def download_data(self):
-        """
-        Download stock data from Yahoo Finance
-        
-        Returns:
-            DataFrame with stock data
-        """
-        print(f"Downloading {self.ticker} data from {self.start_date} to {self.end_date}...")
-        self.raw_data = yf.download(self.ticker, start=self.start_date, end=self.end_date, progress=False)
-        print(f"Downloaded {len(self.raw_data)} days of data.")
-        
-        # Ensure data is sorted by date
-        self.raw_data = self.raw_data.sort_index()
-        
-        return self.raw_data
-    
-    def prepare_features(self):
-        """
-        Prepare features for stock prediction
-        
-        Returns:
-            DataFrame with features
-        """
-        if self.raw_data is None:
-            self.download_data()
+        if start_date is None:
+            # Default to 5 years of data
+            start_datetime = datetime.now() - timedelta(days=5*365)
+            self.start_date = start_datetime.strftime('%Y-%m-%d')
+        else:
+            self.start_date = start_date
             
-        data = self.raw_data.copy()
-        
-        # Technical indicators
-        
-        # Moving averages
-        data['MA5'] = data['Close'].rolling(window=5).mean()
-        data['MA20'] = data['Close'].rolling(window=20).mean()
-        data['MA50'] = data['Close'].rolling(window=50).mean()
-        
-        # Price changes
-        data['Price_Change'] = data['Close'].pct_change()
-        data['Price_Change_1d'] = data['Close'].pct_change(periods=1)
-        data['Price_Change_5d'] = data['Close'].pct_change(periods=5)
-        data['Price_Change_20d'] = data['Close'].pct_change(periods=20)
-        
-        # Volatility
-        data['Volatility_5d'] = data['Close'].pct_change().rolling(window=5).std()
-        data['Volatility_20d'] = data['Close'].pct_change().rolling(window=20).std()
-        
-        # Volume indicators
-        data['Volume_Change'] = data['Volume'].pct_change()
-        data['Volume_MA5'] = data['Volume'].rolling(window=5).mean()
-        
-        # RSI (Relative Strength Index)
-        delta = data['Close'].diff()
-        gain = delta.mask(delta < 0, 0)
-        loss = -delta.mask(delta > 0, 0)
-        avg_gain = gain.rolling(window=14).mean()
-        avg_loss = loss.rolling(window=14).mean().abs()
-        rs = avg_gain / avg_loss
-        data['RSI'] = 100 - (100 / (1 + rs))
-        
-        # MACD (Moving Average Convergence Divergence)
-        data['EMA12'] = data['Close'].ewm(span=12, adjust=False).mean()
-        data['EMA26'] = data['Close'].ewm(span=26, adjust=False).mean()
-        data['MACD'] = data['EMA12'] - data['EMA26']
-        data['MACD_Signal'] = data['MACD'].ewm(span=9, adjust=False).mean()
-        
-        # Drop NaN values
-        data = data.dropna()
-        
-        # Define feature columns
-        self.feature_columns = ['Open', 'High', 'Low', 'Close', 'Volume', 
-                               'MA5', 'MA20', 'MA50', 
-                               'Price_Change', 'Price_Change_1d', 'Price_Change_5d', 'Price_Change_20d',
-                               'Volatility_5d', 'Volatility_20d',
-                               'Volume_Change', 'Volume_MA5',
-                               'RSI', 'MACD', 'MACD_Signal']
-        
-        self.processed_data = data
-        
-        return self.processed_data
-    
-    def scale_data(self):
-        """
-        Scale the data using Min-Max scaling
-        
-        Returns:
-            Scaled DataFrame
-        """
-        if self.processed_data is None:
-            self.prepare_features()
-            
-        # Initialize scaler
+        self.data = None
         self.scaler = MinMaxScaler(feature_range=(0, 1))
+        self.feature_scaler = MinMaxScaler(feature_range=(0, 1))
         
-        # Scale the data
-        scaled_data = self.scaler.fit_transform(self.processed_data[self.feature_columns].values)
-        
-        # Create a new DataFrame with scaled data
-        scaled_df = pd.DataFrame(scaled_data, columns=self.feature_columns, index=self.processed_data.index)
-        
-        self.processed_data[self.feature_columns] = scaled_df[self.feature_columns]
-        
-        return self.processed_data
-    
-    def prepare_data_for_training(self, test_size=0.2):
+    def fetch_data(self):
         """
-        Prepare data for LSTM training
+        Fetch stock data from Yahoo Finance
+        
+        Returns:
+            pd.DataFrame: Stock data
+        """
+        try:
+            data = yf.download(self.ticker, start=self.start_date, end=self.end_date)
+            
+            if data.empty or len(data) < 30:  # Require at least 30 days of data
+                print(f"Error: Not enough data available for {self.ticker} in the specified date range.")
+                return None
+                
+            # Keep only OHLCV columns
+            data = data[['Open', 'High', 'Low', 'Close', 'Volume']]
+            
+            # Handle missing values
+            data.fillna(method='ffill', inplace=True)
+            data.fillna(method='bfill', inplace=True)
+            
+            self.data = data
+            return data
+            
+        except Exception as e:
+            print(f"Error fetching data for {self.ticker}: {str(e)}")
+            return None
+    
+    def preprocess_data(self, sequence_length=60, target_column='Close', feature_columns=None):
+        """
+        Preprocess data for LSTM model
         
         Args:
-            test_size: Proportion of data to use for testing
+            sequence_length (int): Length of input sequences
+            target_column (str): Column to predict
+            feature_columns (list): List of columns to use as features
             
         Returns:
-            train_X, train_y, test_X, test_y: Training and testing data
+            dict: Dictionary containing processed data and metadata
         """
-        if self.processed_data is None:
-            self.scale_data()
+        if self.data is None:
+            print("No data available. Call fetch_data() first.")
+            return None
             
+        data = self.data.copy()
+        
+        # Default to all columns if feature_columns not specified
+        if feature_columns is None:
+            feature_columns = data.columns.tolist()
+        
+        # Create additional features
+        self._create_features(data)
+        
+        # Scale target column (typically 'Close')
+        target_values = data[target_column].values.reshape(-1, 1)
+        scaled_target = self.scaler.fit_transform(target_values)
+        
+        # Scale features
+        feature_values = data[feature_columns].values
+        scaled_features = self.feature_scaler.fit_transform(feature_values)
+        
         # Create sequences
+        X, y = self._create_sequences(scaled_features, scaled_target, sequence_length)
+        
+        # Split into train and validation sets (80% train, 20% validation)
+        train_size = int(len(X) * 0.8)
+        X_train, X_val = X[:train_size], X[train_size:]
+        y_train, y_val = y[:train_size], y[train_size:]
+        
+        # Convert to PyTorch tensors
+        X_train_tensor = torch.FloatTensor(X_train)
+        y_train_tensor = torch.FloatTensor(y_train)
+        X_val_tensor = torch.FloatTensor(X_val)
+        y_val_tensor = torch.FloatTensor(y_val)
+        
+        # Create DataLoaders
+        train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
+        val_dataset = TensorDataset(X_val_tensor, y_val_tensor)
+        
+        train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+        val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
+        
+        return {
+            'train_loader': train_loader,
+            'val_loader': val_loader,
+            'X_train': X_train,
+            'y_train': y_train,
+            'X_val': X_val,
+            'y_val': y_val,
+            'scaler': self.scaler,
+            'feature_scaler': self.feature_scaler,
+            'sequence_length': sequence_length,
+            'feature_columns': feature_columns,
+            'target_column': target_column,
+            'train_size': train_size
+        }
+    
+    def _create_features(self, data):
+        """Create additional features for the model"""
+        # Add moving averages
+        data['MA5'] = data['Close'].rolling(window=5).mean()
+        data['MA10'] = data['Close'].rolling(window=10).mean()
+        data['MA20'] = data['Close'].rolling(window=20).mean()
+        
+        # Add price momentum
+        data['Price_Momentum'] = data['Close'].pct_change(periods=5)
+        
+        # Add volatility
+        data['Volatility'] = data['Close'].rolling(window=10).std()
+        
+        # Normalize volume
+        data['Volume_Norm'] = data['Volume'] / data['Volume'].rolling(window=20).mean()
+        
+        # Fill NaN values created by rolling windows
+        data.fillna(method='bfill', inplace=True)
+        
+        return data
+    
+    def _create_sequences(self, features, target, sequence_length):
+        """
+        Create input sequences and target values
+        
+        Args:
+            features: Scaled feature values
+            target: Scaled target values
+            sequence_length: Length of input sequences
+            
+        Returns:
+            tuple: (X, y) where X is input sequences and y is target values
+        """
         X, y = [], []
-        data = self.processed_data[self.feature_columns].values
         
-        for i in range(len(data) - self.sequence_length):
-            X.append(data[i:i + self.sequence_length])
-            # We'll predict the closing price for the next day
-            close_idx = self.feature_columns.index('Close')
-            y.append(data[i + self.sequence_length, close_idx])
+        for i in range(len(features) - sequence_length):
+            X.append(features[i:i + sequence_length])
+            y.append(target[i + sequence_length])
             
-        X, y = np.array(X), np.array(y)
-        
-        # Reshape y to match the expected output dimensions
-        y = y.reshape(-1, 1)
-        
-        # Split data into training and testing sets
-        split_idx = int(len(X) * (1 - test_size))
-        train_X, test_X = X[:split_idx], X[split_idx:]
-        train_y, test_y = y[:split_idx], y[split_idx:]
-        
-        print(f"Training data shape: {train_X.shape}")
-        print(f"Testing data shape: {test_X.shape}")
-        
-        return train_X, train_y, test_X, test_y, self.scaler
+        return np.array(X), np.array(y)
     
-    def inverse_transform_predictions(self, scaled_predictions):
+    def inverse_transform(self, scaled_values):
         """
-        Convert scaled predictions back to original scale
+        Convert scaled values back to original scale
         
         Args:
-            scaled_predictions: Scaled predictions
+            scaled_values: Scaled values to convert
             
         Returns:
-            Predictions in original scale
+            numpy.array: Original scale values
         """
-        # Create a dummy array with zeros
-        dummy_array = np.zeros((len(scaled_predictions), len(self.feature_columns)))
-        
-        # Find the index of Close price
-        close_idx = self.feature_columns.index('Close')
-        
-        # Put the predictions in the right column
-        dummy_array[:, close_idx] = scaled_predictions.flatten()
-        
-        # Inverse transform
-        original_scale_array = self.scaler.inverse_transform(dummy_array)
-        
-        # Extract the Close price
-        original_scale_predictions = original_scale_array[:, close_idx]
-        
-        # Add a double-check to ensure values are reasonable (in case of extreme scaling issues)
-        # Get the last known price from raw data
-        last_known_price = self.raw_data['Close'].iloc[-1]
-        
-        # If predictions are more than 50% different from last known price, adjust scaling
-        if np.mean(original_scale_predictions) < last_known_price * 0.5 or np.mean(original_scale_predictions) > last_known_price * 2:
-            print(f"WARNING: Scaling issue detected. Mean prediction: ${np.mean(original_scale_predictions):.2f}, Last known price: ${last_known_price:.2f}")
-            print("Applying scaling correction...")
+        # Reshape to column vector if needed
+        if len(scaled_values.shape) == 1:
+            scaled_values = scaled_values.reshape(-1, 1)
             
-            # Simple scaling correction - adjust to be around the last known price
-            scaling_factor = last_known_price / original_scale_predictions[0]
-            original_scale_predictions = original_scale_predictions * scaling_factor
-            
-            print(f"Adjusted mean prediction: ${np.mean(original_scale_predictions):.2f}")
-        
-        return original_scale_predictions
+        return self.scaler.inverse_transform(scaled_values)
     
-    def plot_stock_data(self, save_path=None):
+    def get_current_price(self):
         """
-        Plot stock data with moving averages
+        Get the most recent closing price
+        
+        Returns:
+            float: Current price
+        """
+        if self.data is None:
+            print("No data available. Call fetch_data() first.")
+            return None
+            
+        return self.data['Close'].iloc[-1]
+    
+    def generate_future_dates(self, days):
+        """
+        Generate future dates for prediction
         
         Args:
-            save_path: Path to save the figure
-        """
-        if self.processed_data is None:
-            self.prepare_features()
-            
-        plt.figure(figsize=(14, 7))
-        
-        # Plot stock price and moving averages
-        plt.plot(self.processed_data.index, self.processed_data['Close'], label='Close Price')
-        plt.plot(self.processed_data.index, self.processed_data['MA5'], label='MA5')
-        plt.plot(self.processed_data.index, self.processed_data['MA20'], label='MA20')
-        plt.plot(self.processed_data.index, self.processed_data['MA50'], label='MA50')
-        
-        plt.title(f'{self.ticker} Stock Price History')
-        plt.xlabel('Date')
-        plt.ylabel('Price')
-        plt.legend()
-        plt.grid(True, alpha=0.3)
-        
-        # Ensure the directory exists
-        if save_path:
-            os.makedirs(os.path.dirname(save_path), exist_ok=True)
-            plt.savefig(save_path)
-            
-        plt.close()
-        
-    def get_recent_data(self, n_days):
-        """
-        Get the most recent n_days of data
-        
-        Args:
-            n_days: Number of days of recent data to return
+            days (int): Number of days to predict
             
         Returns:
-            DataFrame with recent data
+            list: List of future dates
         """
-        if self.processed_data is None:
-            self.prepare_features()
+        last_date = datetime.strptime(self.end_date, '%Y-%m-%d')
+        future_dates = []
+        
+        for i in range(1, days + 1):
+            future_date = last_date + timedelta(days=i)
+            # Skip weekends
+            while future_date.weekday() > 4:  # 5 = Saturday, 6 = Sunday
+                future_date += timedelta(days=1)
+            future_dates.append(future_date.strftime('%Y-%m-%d'))
             
-        return self.processed_data.tail(n_days) 
+        return future_dates 

@@ -1,16 +1,57 @@
+#!/usr/bin/env python
+"""
+StockPredictor main class for LSTM-based stock price prediction.
+"""
+
+import os
+import sys
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+
+# Add parent directory to path so Python can find the modules
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Now try to import the module with the corrected path
+try:
+    from models.lstm_model import LSTMModel
+except ModuleNotFoundError:
+    # If that still doesn't work, try relative import
+    try:
+        from .lstm_model import LSTMModel
+    except ImportError:
+        # If all else fails, look for the file in the same directory
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        sys.path.append(current_dir)
+        try:
+            from lstm_model import LSTMModel
+        except ImportError:
+            print("ERROR: Could not import LSTMModel. Make sure lstm_model.py is in the same directory or in a 'models' subdirectory.")
+            sys.exit(1)
+
+# Import baseline models
+try:
+    from models.baseline_models import MovingAverageBaseline, DirectionBaseline
+except ModuleNotFoundError:
+    try:
+        from .baseline_models import MovingAverageBaseline, DirectionBaseline
+    except ImportError:
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        sys.path.append(current_dir)
+        try:
+            from baseline_models import MovingAverageBaseline, DirectionBaseline
+        except ImportError:
+            print("WARNING: Could not import baseline models. Baseline comparison will not be available.")
+
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.metrics import mean_squared_error, mean_absolute_error
-import pandas as pd
-import os
 import glob
 import yfinance as yf
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, f1_score
 
 # Import from the src package
-from models.lstm_model import LSTMModel
 from utils.trainer import LSTMTrainer
 from data.stock_data_loader import StockDataLoader
 
@@ -29,7 +70,7 @@ class StockPredictor:
             sequence_length: Length of sequence for prediction
         """
         self.ticker = ticker
-        self.data_loader = StockDataLoader(ticker, start_date, end_date, sequence_length)
+        self.data_loader = StockDataLoader(ticker, start_date, end_date)
         self.model = None
         self.scaler = None
         self.sequence_length = sequence_length
@@ -45,30 +86,31 @@ class StockPredictor:
             train_loader, test_loader: DataLoader objects for training and testing
         """
         # Download and prepare data
-        self.data_loader.prepare_features()
-        self.data_loader.scale_data()
+        self.data_loader.fetch_data()
         
         # Create output directory if it doesn't exist
         os.makedirs('outputs/figures', exist_ok=True)
         
-        # Visualize the data
-        self.data_loader.plot_stock_data(f"outputs/figures/{self.ticker}_stock_history.png")
+        # Preprocess data with the specified sequence length
+        processed_data = self.data_loader.preprocess_data(sequence_length=self.sequence_length)
         
-        # Get training data
-        train_X, train_y, test_X, test_y, self.scaler = self.data_loader.prepare_data_for_training()
+        if processed_data is None:
+            raise ValueError("Failed to preprocess data. Check if data is available.")
         
-        # Convert to PyTorch tensors
-        train_X = torch.FloatTensor(train_X).to(self.device)
-        train_y = torch.FloatTensor(train_y).to(self.device)
-        test_X = torch.FloatTensor(test_X).to(self.device)
-        test_y = torch.FloatTensor(test_y).to(self.device)
+        # Extract components from processed data
+        train_loader = processed_data['train_loader']
+        test_loader = processed_data['val_loader']
+        test_X = processed_data['X_val']
+        test_y = processed_data['y_val']
+        self.scaler = processed_data['scaler']
         
-        # Create DataLoader objects
-        train_dataset = TensorDataset(train_X, train_y)
-        test_dataset = TensorDataset(test_X, test_y)
+        # Store feature columns for later use
+        self.data_loader.feature_columns = processed_data['feature_columns']
         
-        train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-        test_loader = DataLoader(test_dataset, batch_size=32)
+        # Convert test data to tensors if not already
+        if not isinstance(test_X, torch.Tensor):
+            test_X = torch.FloatTensor(test_X).to(self.device)
+            test_y = torch.FloatTensor(test_y).to(self.device)
         
         return train_loader, test_loader, test_X, test_y
         
@@ -90,13 +132,11 @@ class StockPredictor:
         
         # Initialize model
         input_size = len(self.data_loader.feature_columns)
-        output_size = 1  # We're predicting only the closing price
         
         self.model = LSTMModel(
             input_size=input_size,
             hidden_size=hidden_size,
             num_layers=num_layers,
-            output_size=output_size,
             dropout=0.3  # Higher dropout for financial data to prevent overfitting
         ).to(self.device)
         
@@ -107,8 +147,7 @@ class StockPredictor:
         os.makedirs('outputs/models', exist_ok=True)
         
         # Generate model save path with timestamp
-        import datetime
-        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         model_save_path = f'outputs/models/{self.ticker}_model_{timestamp}.pth'
         self.latest_model_path = model_save_path
         
@@ -117,7 +156,7 @@ class StockPredictor:
             train_loader, 
             test_loader, 
             epochs=epochs, 
-            model_save_path=model_save_path
+            save_path=model_save_path
         )
         
         # Plot training history
@@ -136,8 +175,8 @@ class StockPredictor:
         os.makedirs('outputs/figures', exist_ok=True)
         
         plt.figure(figsize=(10, 6))
-        plt.plot(history['train_loss'], label='Training Loss')
-        plt.plot(history['val_loss'], label='Validation Loss')
+        plt.plot(history['train_losses'], label='Training Loss')
+        plt.plot(history['valid_losses'], label='Validation Loss')
         plt.title(f'{self.ticker} LSTM Model Training')
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
@@ -174,22 +213,34 @@ class StockPredictor:
         mse = mean_squared_error(actual_prices, predicted_prices)
         rmse = np.sqrt(mse)
         mae = mean_absolute_error(actual_prices, predicted_prices)
+        r2 = r2_score(actual_prices, predicted_prices)
         
-        # Calculate direction accuracy
-        actual_direction = np.diff(actual_prices) > 0
-        predicted_direction = np.diff(predicted_prices) > 0
-        direction_accuracy = np.mean(actual_direction == predicted_direction)
+        print(f"\nModel Performance:")
+        print(f"MSE: {mse:.4f}")
+        print(f"RMSE: {rmse:.4f}")
+        print(f"MAE: {mae:.4f}")
+        print(f"R²: {r2:.4f}")
         
-        print(f"\nEvaluation Metrics for {self.ticker}:")
-        print(f"Mean Squared Error: {mse:.4f}")
-        print(f"Root Mean Squared Error: {rmse:.4f}")
-        print(f"Mean Absolute Error: {mae:.4f}")
-        print(f"Direction Accuracy: {direction_accuracy:.4f}")
+        # Create output directory if it doesn't exist
+        os.makedirs('outputs/figures', exist_ok=True)
         
         # Plot predictions vs actual
         self.plot_predictions(actual_prices, predicted_prices)
         
-        return mse, rmse, mae, direction_accuracy
+        # Compare with baselines if available
+        try:
+            self.compare_with_baselines(actual_prices, predicted_prices)
+        except (NameError, ImportError):
+            print("Baseline comparison not available. Skipping baseline comparison.")
+        
+        return {
+            'mse': mse,
+            'rmse': rmse,
+            'mae': mae,
+            'r2': r2,
+            'actual': actual_prices,
+            'predicted': predicted_prices
+        }
     
     def plot_predictions(self, actual_prices, predicted_prices):
         """
@@ -378,7 +429,6 @@ class StockPredictor:
             input_size=input_size,
             hidden_size=128,
             num_layers=2,
-            output_size=1,
             dropout=0.3
         ).to(self.device)
         
@@ -397,7 +447,6 @@ class StockPredictor:
                 input_size=input_size,
                 hidden_size=256,
                 num_layers=3,
-                output_size=1,
                 dropout=0.4
             ).to(self.device)
             
@@ -452,3 +501,127 @@ class StockPredictor:
             print(f"Adjusted first prediction: ${original_scale_predictions[0]:.2f}")
         
         return original_scale_predictions 
+
+    def compare_with_baselines(self, actual_prices, predicted_prices):
+        """
+        Compare model performance with baseline models
+        
+        Args:
+            actual_prices: Actual price values
+            predicted_prices: Predicted price values from LSTM model
+        """
+        print("\nComparing LSTM model with baselines...")
+        
+        # Calculate LSTM model metrics
+        lstm_metrics = {
+            'mse': mean_squared_error(actual_prices, predicted_prices),
+            'rmse': np.sqrt(mean_squared_error(actual_prices, predicted_prices)),
+            'mae': mean_absolute_error(actual_prices, predicted_prices),
+            'r2': r2_score(actual_prices, predicted_prices)
+        }
+        
+        # Get the raw data for comparison
+        raw_data = self.data_loader.data.copy()
+        raw_prices = raw_data['Close'].values
+        
+        # Calculate direction for F1 score (1=up, 0=down/flat)
+        actual_direction = (np.diff(actual_prices) > 0).astype(int)
+        lstm_direction = (np.diff(predicted_prices) > 0).astype(int)
+        lstm_metrics['f1_score'] = f1_score(actual_direction, lstm_direction)
+        
+        # Create Moving Average baseline
+        ma_window = min(20, len(raw_prices) // 10)  # Use 20 or 10% of data points, whichever is smaller
+        ma_baseline = MovingAverageBaseline(window_size=ma_window)
+        ma_predictions = ma_baseline.predict(raw_prices)
+        
+        # Calculate Moving Average metrics
+        ma_metrics = {
+            'mse': mean_squared_error(raw_prices[ma_window:], ma_predictions[ma_window:]),
+            'rmse': np.sqrt(mean_squared_error(raw_prices[ma_window:], ma_predictions[ma_window:])),
+            'mae': mean_absolute_error(raw_prices[ma_window:], ma_predictions[ma_window:]),
+            'r2': r2_score(raw_prices[ma_window:], ma_predictions[ma_window:])
+        }
+        
+        # Calculate direction for Moving Average
+        ma_direction = (np.diff(ma_predictions) > 0).astype(int)
+        raw_direction = (np.diff(raw_prices) > 0).astype(int)
+        ma_metrics['f1_score'] = f1_score(raw_direction[ma_window-1:], ma_direction[ma_window-1:])
+        
+        # Create Direction baseline
+        direction_baseline = DirectionBaseline(strategy='momentum', lookback=5)
+        baseline_directions, _ = direction_baseline.predict(raw_prices)
+        direction_metrics = {
+            'f1_score': f1_score(raw_direction[5:], baseline_directions[5:])
+        }
+        
+        # Print comparison
+        print("\nMetrics Comparison:")
+        print(f"{'Metric':<10} {'LSTM':<10} {'MA Baseline':<15} {'Improvement':<15}")
+        print("-" * 50)
+        
+        for metric in ['mse', 'rmse', 'mae', 'r2']:
+            improvement = ((ma_metrics[metric] - lstm_metrics[metric]) / ma_metrics[metric]) * 100
+            # Handle R² differently (higher is better)
+            if metric == 'r2':
+                improvement = ((lstm_metrics[metric] - ma_metrics[metric]) / (1 - ma_metrics[metric])) * 100
+            
+            # Format improvement as percentage with sign
+            if improvement >= 0:
+                improvement_str = f"+{improvement:.2f}%"
+            else:
+                improvement_str = f"{improvement:.2f}%"
+                
+            print(f"{metric.upper():<10} {lstm_metrics[metric]:<10.4f} {ma_metrics[metric]:<15.4f} {improvement_str:<15}")
+        
+        # Handle F1 score separately (direction prediction)
+        if 'f1_score' in lstm_metrics and 'f1_score' in direction_metrics:
+            improvement = ((lstm_metrics['f1_score'] - direction_metrics['f1_score']) / direction_metrics['f1_score']) * 100
+            improvement_str = f"+{improvement:.2f}%" if improvement >= 0 else f"{improvement:.2f}%"
+            print(f"{'F1 SCORE':<10} {lstm_metrics['f1_score']:<10.4f} {direction_metrics['f1_score']:<15.4f} {improvement_str:<15}")
+        
+        # Calculate improvement over baseline F1 = 0.6937
+        target_f1 = 0.6937
+        if 'f1_score' in lstm_metrics:
+            f1_improvement = ((lstm_metrics['f1_score'] - target_f1) / target_f1) * 100
+            f1_improvement_str = f"+{f1_improvement:.2f}%" if f1_improvement >= 0 else f"{f1_improvement:.2f}%"
+            print(f"{'F1 TARGET':<10} {lstm_metrics['f1_score']:<10.4f} {target_f1:<15.4f} {f1_improvement_str:<15}")
+        
+        # Plot comparison
+        self.plot_baseline_comparison(raw_prices, ma_predictions, ma_window)
+            
+        return {
+            'lstm': lstm_metrics,
+            'ma_baseline': ma_metrics,
+            'direction_baseline': direction_metrics
+        }
+    
+    def plot_baseline_comparison(self, actual_prices, baseline_predictions, window_size):
+        """
+        Plot actual prices vs baseline predictions
+        
+        Args:
+            actual_prices: Actual price values
+            baseline_predictions: Baseline model predictions
+            window_size: Window size used for moving average
+        """
+        plt.figure(figsize=(12, 6))
+        
+        # Plot actual prices
+        plt.plot(actual_prices, label='Actual Prices', color='blue')
+        
+        # Plot baseline predictions (skip the first window_size values)
+        valid_predictions = baseline_predictions[window_size:]
+        valid_indices = range(window_size, len(actual_prices))
+        plt.plot(valid_indices, valid_predictions, label=f'MA({window_size}) Baseline', color='red', linestyle='--')
+        
+        plt.title(f'{self.ticker} Stock Price - Model vs Baseline', fontsize=14)
+        plt.xlabel('Time', fontsize=12)
+        plt.ylabel('Price ($)', fontsize=12)
+        plt.legend()
+        plt.grid(alpha=0.3)
+        
+        # Save figure
+        plt.savefig(f"outputs/figures/{self.ticker}_model_vs_baseline.png")
+        plt.close()
+        
+        print(f"Baseline comparison plot saved to outputs/figures/{self.ticker}_model_vs_baseline.png") 

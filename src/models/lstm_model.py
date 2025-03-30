@@ -1,27 +1,29 @@
+"""
+LSTM Model for stock price prediction
+"""
+
 import torch
 import torch.nn as nn
 
 class LSTMModel(nn.Module):
-    """
-    LSTM model for time series prediction
-    """
-    def __init__(self, input_size, hidden_size, num_layers, output_size, dropout=0.2):
+    """LSTM model for time series prediction"""
+    
+    def __init__(self, input_size, hidden_size, num_layers=1, dropout=0.2):
         """
         Initialize the LSTM model
         
         Args:
-            input_size: Number of input features
-            hidden_size: Size of hidden layers
-            num_layers: Number of LSTM layers
-            output_size: Size of output (typically 1 for regression)
-            dropout: Dropout rate for regularization
+            input_size (int): Number of input features
+            hidden_size (int): Size of hidden state
+            num_layers (int): Number of LSTM layers
+            dropout (float): Dropout rate
         """
         super(LSTMModel, self).__init__()
         
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         
-        # LSTM layers
+        # LSTM layer
         self.lstm = nn.LSTM(
             input_size=input_size,
             hidden_size=hidden_size,
@@ -30,49 +32,42 @@ class LSTMModel(nn.Module):
             dropout=dropout if num_layers > 1 else 0
         )
         
-        # Dropout layer
-        self.dropout = nn.Dropout(dropout)
-        
-        # Fully connected output layer
-        self.fc = nn.Linear(hidden_size, output_size)
+        # Fully connected layer for prediction
+        self.fc = nn.Linear(hidden_size, 1)
         
     def forward(self, x):
         """
         Forward pass through the network
         
         Args:
-            x: Input tensor of shape (batch_size, sequence_length, input_size)
+            x: Input tensor of shape (batch_size, seq_length, input_size)
             
         Returns:
-            Output tensor of shape (batch_size, output_size)
+            torch.Tensor: Output prediction
         """
-        # Initialize hidden state and cell state
+        # Initialize hidden state with zeros
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         
         # Forward propagate LSTM
-        out, _ = self.lstm(x, (h0, c0))  # out shape: (batch_size, sequence_length, hidden_size)
+        lstm_out, _ = self.lstm(x, (h0, c0))
         
-        # Get the output from the last time step
-        out = out[:, -1, :]  # shape: (batch_size, hidden_size)
-        
-        # Apply dropout for regularization
-        out = self.dropout(out)
-        
-        # Pass through the fully connected layer
-        out = self.fc(out)
+        # Get the last time step output
+        out = self.fc(lstm_out[:, -1, :])
         
         return out
     
     def predict(self, x):
         """
-        Make predictions
+        Make predictions using the model
+        
         Args:
-            x: input tensor
+            x: Input data
+            
         Returns:
-            predictions: numpy array of predictions
+            torch.Tensor: Predictions
         """
-        self.eval()
+        self.eval()  # Set model to evaluation mode
         with torch.no_grad():
-            predictions = self(x)
-            return predictions.numpy() 
+            predictions = self.forward(x)
+        return predictions 

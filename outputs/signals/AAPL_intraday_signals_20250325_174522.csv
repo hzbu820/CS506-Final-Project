@@ -1,2 +1,0 @@
-Ticker,Current_Price,Predicted_Price_Short,Predicted_Price_Long,Predicted_Change_Short,Predicted_Change_Long,Trend,RSI,RSI_Signal,MACD_Signal,Trading_Signal,Confidence
-AAPL,223.72999572753906,220.60838077392873,221.01681980241392,-1.3952599174103912,-1.2127010132469136,BEARISH,65.67601383675573,NEUTRAL,BULLISH,SELL,55
