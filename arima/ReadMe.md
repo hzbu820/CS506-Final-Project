@@ -1,4 +1,4 @@
-ARIMA (AutoRegressive Integrated Moving Average) Model
+**ARIMA (AutoRegressive Integrated Moving Average) Model**
 
 The ARIMA(p, d, q) model is a widely used statistical method for time series forecasting. It consists of three key parameters:
 
@@ -12,17 +12,17 @@ Otherwise, we apply differencing to remove trends and seasonality.
 
 q (Moving Average term): The size of the moving average window, representing the number of lagged forecast errors (white noise) used to improve predictions.
 
-Why We Chose ARIMA?
+**Why We Chose start with ARIMA?**
 
 We selected ARIMA as a baseline model for our project due to its simplicity and interpretability. It serves as a solid starting point to model univariate time series data, especially when the data exhibits short-term dependencies.
 
 Our preprocessing involves:
 
-Testing for stationarity.
+1. Testing for stationarity.
 
-Applying differencing when necessary to achieve stationarity.
+2. Applying differencing when necessary to achieve stationarity.
 
-Fitting the ARIMA model based on optimal (p, d, q) values.
+3. Fitting the ARIMA model based on optimal (p, d, q) values.
 
 Limitations of ARIMA:
 
