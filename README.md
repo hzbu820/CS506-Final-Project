@@ -114,10 +114,12 @@ After raw data collection, we clean and engineer features for both ARIMA and LST
 
 ### Apple Data Visualization
 <img src="images/apple_data_visual.png" alt="Apple Data Visualization" width="50%">
+<img src="images/apple_lstm.png" alt="AAPL LSTM Prediction" width="50%">
 
 ## Modeling Methods
 
 ### ARIMA Model
+
 Our baseline forecasting model uses ARIMA:
 - **Model Parameters**: ARIMA(p, d, q)
   - **p**: Number of past data points.
@@ -127,6 +129,33 @@ Our baseline forecasting model uses ARIMA:
   - The model performs better on long-term (1-day interval) datasets with approximately a 70% F1 score.
   - Performance on short-term (15-min interval) data is comparatively lower.
 - **Metrics**: Accuracy and F1 Score.
+
+
+-**Why We Chose start with ARIMA?**
+
+We selected ARIMA as a baseline model for our project due to its simplicity and interpretability. It serves as a solid starting point to model univariate time series data, especially when the data exhibits short-term dependencies.
+
+Our preprocessing involves:
+
+1. Testing for stationarity.
+
+2. Applying differencing when necessary to achieve stationarity.
+
+3. Fitting the ARIMA model based on optimal (p, d, q) values.
+
+##Limitations of ARIMA:
+
+While ARIMA is a strong classical method, it has several limitations:
+
+1. Short-range memory: ARIMA is not designed to capture long-term dependencies or complex temporal patterns.
+
+2. Univariate only: It cannot model multivariate relationships without extensions.
+
+3. Assumes linearity: ARIMA works best when the underlying data generation process is linear.
+
+Because of these constraints, we later explore more advanced models such as LSTM that better capture non-linearity and long-term trends.
+
+
 
 <img src="images/apple_baseline.png" alt="AAPL Baseline ARIMA Prediction" width="50%">
 
@@ -145,7 +174,6 @@ Our advanced LSTM model forecasts actual price values based on high-frequency (1
   - The LSTM model effectively smooths out extreme volatility while capturing major price trends.
   - It achieves a 15-20% higher R² compared to baseline models, especially during periods of high volatility.
 
-<img src="images/apple_lstm.png" alt="AAPL LSTM Prediction" width="50%">
 
 ## Preliminary Results
 - **ARIMA**: Achieved promising results on longer-term datasets (~70% F1 score).
