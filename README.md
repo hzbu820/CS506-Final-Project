@@ -171,6 +171,10 @@ Our advanced LSTM model forecasts actual price values based on high-frequency (1
 - Expand the data processing pipeline to include additional stocks and timeframes.
 - Finalize the midterm report and presentation content.
 
+
+##Final Project Plan to do
+--Fine Tune LSTM
+--Create a 10 mins long video
 ---
 
 This README serves as the working document for both the project and the midterm report/presentation. For more detailed information and the latest code, please refer to the repository structure above.
