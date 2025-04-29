@@ -93,16 +93,6 @@ The following models will be implemented and compared:
 
 ---
 
-# Midterm Report and Presentation
-
-**Due Date: 03/31**
-
-## Midterm Presentation Video
-[\[Midterm Presentation Video on Youtube\]](https://www.youtube.com/watch?v=A55g-Iqc7iY)
-
-### Apple Data Visualization
-
-## Data Processing
 
 ### Dataset Fetching
 Our project implements advanced machine learning techniques to predict stock price movements, aiming for greater accuracy than traditional "buy-and-hold" strategies. We use the `yfinance` library to gather data for the **Magnificent 7** tech stocks through a well-structured pipeline that includes:
