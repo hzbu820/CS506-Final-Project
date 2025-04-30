@@ -14,6 +14,8 @@ class LSTMModel(nn.Module):
         out, _ = self.lstm(x, (h0, c0))
         return self.fc(out[:, -1, :])
 
+
+#Double dropout layer version
 # class LSTMModel(nn.Module):
 #     def __init__(self, input_size, hidden_size, num_layers, output_size, dropout=0.2):
 #         super().__init__()
