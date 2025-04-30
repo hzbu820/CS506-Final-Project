@@ -1,0 +1,24 @@
+MSFT_LSTM Evaluation Results
+MSE: 0.013517
+RMSE: 0.116263
+MAE: 0.079902
+R^2: 0.776420
+F1 Score (trend): 0.5833
+MSFT_LSTM Evaluation Results
+MSE: 0.071271
+RMSE: 0.266967
+MAE: 0.201889
+R^2: -0.178871
+F1 Score (trend): 0.5555
+MSFT_LSTM Evaluation Results
+MSE: 0.068409
+RMSE: 0.261550
+MAE: 0.195755
+R^2: -0.131522
+F1 Score (trend): 0.5534
+MSFT_LSTM Evaluation Results
+MSE: 0.045827
+RMSE: 0.214074
+MAE: 0.159954
+R^2: 0.241983
+F1 Score (trend): 0.0236

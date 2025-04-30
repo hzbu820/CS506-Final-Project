@@ -1,0 +1,2 @@
+Trend-Only Evaluation
+F1 Score (Up/Down Classification): 0.6236
