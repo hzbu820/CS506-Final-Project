@@ -1,0 +1,29 @@
+data_path: "data/MSFT_1d_full.csv"   # UPDATED
+target_column: "close"
+features: ["open", "high", "low", "close", "volume"]
+
+# model:
+#   hidden_size: 64
+#   num_layers: 2
+#   dropout: 0.2
+#   seq_length: 24
+#   forecast_horizon: 1
+
+# training:
+#   batch_size: 32
+#   epochs: 30
+#   patience: 5
+#   learning_rate: 0.001
+
+model:
+  hidden_size: 64
+  num_layers: 2
+  dropout: 0.1
+  seq_length: 24
+  forecast_horizon: 1
+
+training:
+  batch_size: 32
+  epochs: 75
+  patience: 10
+  learning_rate: 0.001
