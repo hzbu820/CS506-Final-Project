@@ -1,8 +1,11 @@
 # Stock Price Prediction Using Advanced Machine Learning Techniques
-
+- Haoyang Yin
+- Yitao Wang
+- Zishuo Liu
+- Haoran Zhang
 
 ## Final Presentation Video
-[Link to Stock Price Prediction with LSTM - Final Presentation](https://www.youtube.com/your-final-video-link-here)
+https://youtu.be/siAH2n-hAGY
 
 ## Table of Contents
 - [Project Overview](#project-overview)
@@ -20,11 +23,8 @@
 - [Performance Analysis](#performance-analysis)
 - [Testing](#testing)
 - [Challenges and Solutions](#challenges-and-solutions)
-- [Future Work](#future-work)
-- [How to Contribute](#how-to-contribute)
 - [Supported Environments](#supported-environments)
-- [License](#license)
-- [Acknowledgments](#acknowledgments)
+
 
 ## Project Overview
 
@@ -485,24 +485,6 @@ Several directions for future improvement include:
    - Deployment as a web service or application
    - Automated alert system for trading signals
 
-## How to Contribute
-
-We welcome contributions to this project. To contribute:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests to ensure they pass (`pytest tests/`)
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
-
-### Contribution Guidelines
-
-- Maintain test coverage for new code
-- Follow PEP 8 style guidelines
-- Document new functions and classes
-- Update README.md with any necessary changes
 
 ## Supported Environments
 
@@ -512,18 +494,5 @@ This project has been tested on:
 - Python 3.9, 3.10
 - CUDA 11.7, 12.0 (for GPU acceleration)
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- The project builds upon research in time series forecasting and deep learning
-- Thanks to Yahoo Finance for providing historical stock data
-- Special thanks to CS506 course staff for guidance and feedback
-
----
-
-This README serves as the documentation for our final CS506 project. For questions or further information, please open an issue on the repository.
 
 
