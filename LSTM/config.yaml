@@ -9,19 +9,6 @@ target_column: "macd_line"
 features: ["open", "high", "low", "close", "volume","ema_9","sma_14", "rsi_14", "macd_line", "macd_signal","macd_hist", "bollinger_upper", "bollinger_middle", "bollinger_lower",
 "atr_14"]
 
-# model:
-#   hidden_size: 64
-#   num_layers: 2
-#   dropout: 0.2
-#   seq_length: 24
-#   forecast_horizon: 1
-
-# training:
-#   batch_size: 32
-#   epochs: 30
-#   patience: 5
-#   learning_rate: 0.001
-
 model:
   hidden_size: 64
   num_layers: 2
