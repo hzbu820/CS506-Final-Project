@@ -195,4 +195,13 @@ Our advanced LSTM model forecasts actual price values based on high-frequency (1
 --Create a 10 mins long video
 ---
 
+
+How to run the LSTM /0501
+1. Make sure you have all the packages:
+python install requirements.txt
+2. Ensure PyTorch is GPU-enabled:
+python -c "import torch; print(torch.cuda.get_device_name(0))"
+3. Start to run:
+python main.py --config config.yaml
+
 This README serves as the working document for both the project and the midterm report/presentation. For more detailed information and the latest code, please refer to the repository structure above.
