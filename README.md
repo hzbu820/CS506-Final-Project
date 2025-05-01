@@ -1,8 +1,5 @@
 # Stock Price Prediction Using Advanced Machine Learning Techniques
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-1.11+-red.svg)](https://pytorch.org/)
 
 ## Final Presentation Video
 [Link to Stock Price Prediction with LSTM - Final Presentation](https://www.youtube.com/your-final-video-link-here)
