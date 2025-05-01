@@ -1,6 +1,13 @@
 data_path: "data/MSFT_1d_full.csv"   # UPDATED
-target_column: "close"
-features: ["open", "high", "low", "close", "volume"]
+
+
+# target_column: "close"
+# features: ["open", "high", "low", "close", "volume"]
+
+# For count the F1_score.
+target_column: "macd_line"
+features: ["open", "high", "low", "close", "volume","ema_9","sma_14", "rsi_14", "macd_line", "macd_signal","macd_hist", "bollinger_upper", "bollinger_middle", "bollinger_lower",
+"atr_14"]
 
 # model:
 #   hidden_size: 64
