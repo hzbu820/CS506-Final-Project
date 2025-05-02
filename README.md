@@ -369,9 +369,6 @@ Prediction visualizations for each stock can be found in the `LSTM/Result/` dire
 ### Comparative Metrics
 For each stock, we calculated:
 - **F1 Score**: Primary metric for binary classification performance
-- **Accuracy**: Percentage of correct predictions
-- **Precision**: True positives / (True positives + False positives)
-- **Recall**: True positives / (True positives + False negatives)
 
 ### Key Insights
 - LSTM consistently outperformed ARIMA on F1 score for most stocks
