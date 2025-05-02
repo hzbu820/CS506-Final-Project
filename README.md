@@ -485,10 +485,9 @@ Several directions for future improvement include:
 
 ## Supported Environments
 
-This project has been tested on:
+This project has been developed and tested on:
 - Windows 10/11
-- Ubuntu 20.04/22.04
-- Python 3.9, 3.10
+- Python 3.9, 3.10, 3.12
 - CUDA 11.7, 12.0 (for GPU acceleration)
 
 
