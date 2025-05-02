@@ -459,30 +459,6 @@ During development, we faced several challenges:
    - **Challenge**: Training larger models with limited resources
    - **Solution**: Batch size optimization and efficient sequence handling
 
-## Future Work
-
-Several directions for future improvement include:
-
-1. **Advanced Model Architectures**:
-   - Transformer-based models for improved sequence modeling
-   - Hybrid CNN-LSTM models for feature extraction
-
-2. **Enhanced Features**:
-   - News sentiment analysis integration
-   - Macroeconomic indicators incorporation
-   - Cross-asset correlations (e.g., sector indices, commodities)
-
-3. **Trading Strategy Implementation**:
-   - Back-testing framework with transaction costs
-   - Portfolio optimization using model predictions
-   - Risk management integration
-
-4. **Real-time Prediction System**:
-   - API integration for live data feeds
-   - Deployment as a web service or application
-   - Automated alert system for trading signals
-
-
 ## Supported Environments
 
 This project has been developed and tested on:
