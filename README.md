@@ -121,10 +121,15 @@ python DataCollection/yfinance_data_processing.py --all-mag7
 ```
 
 2. Run the ARIMA baseline model:
+#Make sure you have correct version of Jupyter notebook and nbformat package. 
 ```bash
 cd Arima\(Baseline\)
-jupyter notebook arima.ipynb
+pip install --upgrade nbformat
+pip install --upgrade notebook
+
 ```
+
+And then open the jupyter-notebook in your browser.
 
 3. Train and evaluate the LSTM model:
 ```bash

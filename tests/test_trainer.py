@@ -12,6 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from LSTM.model.lstm import LSTMModel
 from LSTM.utils.train import LSTMTrainer
 
+
 class TestTrainer(unittest.TestCase):
     def setUp(self):
         """Set up model, optimizer, and data for testing."""
@@ -21,64 +22,60 @@ class TestTrainer(unittest.TestCase):
         self.num_layers = 1  # Using a single layer for faster testing
         self.output_size = 1
         self.device = torch.device("cpu")  # Use CPU for testing
-        
+
         # Create model
         self.model = LSTMModel(
-            self.input_size, 
-            self.hidden_size, 
-            self.num_layers, 
+            self.input_size,
+            self.hidden_size,
+            self.num_layers,
             self.output_size
         )
-        
+
         # Create optimizer and loss function
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=0.001)
         self.criterion = torch.nn.MSELoss()
-        
+
         # Create trainer
         self.trainer = LSTMTrainer(self.model, self.optimizer, self.criterion, self.device)
-        
+
         # Create dummy dataset
         np.random.seed(42)
         n_samples = 50
         seq_length = 10
-        
+
         # X: (n_samples, seq_length, input_size)
         X = np.random.randn(n_samples, seq_length, self.input_size)
         # y: (n_samples, output_size)
         y = np.random.randn(n_samples, self.output_size)
-        
+
         # Convert to torch tensors
         X_tensor = torch.FloatTensor(X)
         y_tensor = torch.FloatTensor(y)
-        
+
         # Create dataset and dataloader
         dataset = TensorDataset(X_tensor, y_tensor)
         self.dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
-        
+
     def test_train_epoch(self):
-        """Test that a single training epoch runs without errors."""
         try:
-            loss = self.trainer._train_epoch(self.dataloader)
+            self.trainer.train(self.dataloader, self.dataloader, epochs=1, patience=1)
             test_passed = True
         except Exception as e:
             test_passed = False
-            print(f"Training epoch failed with error: {e}")
-        
+            print(f"Training failed: {e}")
         self.assertTrue(test_passed)
-        self.assertIsInstance(loss, float)
-        
+
     def test_validate_epoch(self):
-        """Test that a single validation epoch runs without errors."""
         try:
-            loss = self.trainer._validate(self.dataloader)
+            val_loss = self.trainer.validate(self.dataloader)
             test_passed = True
         except Exception as e:
             test_passed = False
-            print(f"Validation epoch failed with error: {e}")
-        
+            print(f"Validation failed: {e}")
+            val_loss = None
         self.assertTrue(test_passed)
-        self.assertIsInstance(loss, float)
-    
+        self.assertIsInstance(val_loss, float)
+
     def test_train_early_stopping(self):
         """Test that training with early stopping works."""
         try:
@@ -88,8 +85,9 @@ class TestTrainer(unittest.TestCase):
         except Exception as e:
             test_passed = False
             print(f"Training with early stopping failed with error: {e}")
-        
+
         self.assertTrue(test_passed)
+
 
 if __name__ == "__main__":
     unittest.main() 

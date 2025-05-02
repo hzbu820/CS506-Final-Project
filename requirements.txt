@@ -7,3 +7,5 @@ torch>=1.13
 mplfinance
 TA-Lib
 yfinance
+pytest
+statsmodels
